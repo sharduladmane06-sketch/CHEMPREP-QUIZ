@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemLab Pro — AI-Powered Chemistry Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#06090f;--surface:#0c1220;--surface2:#111a2c;--surface3:#16223a;
+  --border:#1a2d4a;--border2:#203558;
+  --accent:#00e5ff;--accent2:#ff6b35;--accent3:#7cfc00;--accent4:#c084fc;--accent5:#f59e0b;
+  --text:#ddeeff;--muted:#3d5878;--muted2:#5a7898;
+  --success:#22c55e;--error:#ef4444;--warning:#f59e0b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 70% 50% at 15% 15%,rgba(0,229,255,.06) 0%,transparent 60%),
+  radial-gradient(ellipse 60% 70% at 85% 85%,rgba(124,252,0,.05) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 40% at 50% 50%,rgba(192,132,252,.03) 0%,transparent 60%);
+  pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(0,229,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,.025) 1px,transparent 1px);
+  background-size:48px 48px;pointer-events:none;z-index:0;}
+
+.app{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:0 16px 80px;}
+
+/* HEADER */
+header{text-align:center;padding:36px 0 20px;position:relative;}
+.logo{font-size:clamp(2rem,6vw,3.2rem);font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent3) 50%,var(--accent2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo-sub{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.2em;color:var(--muted2);text-transform:uppercase;margin-top:4px;}
+.pro-badge{display:inline-block;background:linear-gradient(135deg,var(--accent4),#7c3aed);color:#fff;
+  font-size:.65rem;padding:2px 8px;border-radius:20px;margin-left:8px;vertical-align:middle;font-family:'Space Mono',monospace;}
+
+/* TOP STATS */
+.top-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:16px 0 24px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 8px;text-align:center;}
+.stat-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:4px;}
+.stat-val{font-size:1.3rem;font-weight:800;font-family:'Space Mono',monospace;transition:transform .2s,color .2s;}
+.stat-val.bump{transform:scale(1.3);color:var(--accent3)!important;}
+
+/* NAV */
+.nav{display:flex;gap:6px;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:5px;flex-wrap:wrap;}
+.nav-btn{flex:1;min-width:80px;padding:10px 6px;border:none;border-radius:10px;background:transparent;color:var(--muted2);
+  font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;cursor:pointer;transition:all .25s;
+  display:flex;flex-direction:column;align-items:center;gap:3px;text-transform:uppercase;letter-spacing:.05em;}
+.nav-btn .icon{font-size:1.2rem;}
+.nav-btn:hover{color:var(--text);background:var(--surface2);}
+.nav-btn.active{background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,229,255,.05));color:var(--accent);border:1px solid rgba(0,229,255,.3);}
+.nav-btn .notif{display:inline-block;background:var(--accent2);color:#fff;font-size:.55rem;border-radius:10px;padding:1px 5px;margin-left:2px;}
+
+/* PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;display:none;animation:fadeUp .4s ease both;}
+.panel.active{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+.panel-title{font-size:1.4rem;font-weight:800;margin-bottom:4px;}
+.panel-desc{color:var(--muted2);font-size:.88rem;margin-bottom:22px;line-height:1.6;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border:none;border-radius:10px;
+  font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;
+  text-transform:uppercase;letter-spacing:.06em;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),#0090a8);color:#000;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,229,255,.3);}
+.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+.btn-ai{background:linear-gradient(135deg,var(--accent4),#7c3aed);color:#fff;}
+.btn-ai:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(192,132,252,.3);}
+
+/* DIFF BUTTONS */
+.diff-row{display:flex;gap:7px;margin-bottom:18px;}
+.diff-btn{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;
+  color:var(--muted2);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;
+  text-transform:uppercase;letter-spacing:.06em;transition:all .2s;}
+.diff-btn.active{border-color:var(--accent3);color:var(--accent3);background:rgba(124,252,0,.08);}
+
+/* PROGRESS */
+.progress-bar{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:18px;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:3px;transition:width .4s ease;}
+.q-counter{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted2);margin-bottom:6px;}
+
+/* QUESTION BOX */
+.question-box{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:24px;
+  text-align:center;margin-bottom:20px;position:relative;overflow:hidden;}
+.question-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--accent),var(--accent3));}
+.fg-structure{font-family:'Space Mono',monospace;font-size:clamp(1.1rem,3vw,1.6rem);color:var(--accent3);margin-bottom:10px;line-height:1.5;}
+.fg-hint{font-size:.82rem;color:var(--muted2);}
+
+/* OPTIONS */
+.options-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
+.option-btn{padding:14px;background:var(--surface2);border:2px solid var(--border);border-radius:11px;
+  color:var(--text);font-family:'Syne',sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;transition:all .2s;text-align:center;}
+.option-btn:hover:not(:disabled){border-color:var(--accent);background:rgba(0,229,255,.07);transform:translateY(-1px);}
+.option-btn.correct{border-color:var(--success);background:rgba(34,197,94,.12);color:var(--success);}
+.option-btn.wrong{border-color:var(--error);background:rgba(239,68,68,.1);color:#fca5a5;}
+.option-btn:disabled{cursor:default;}
+
+/* FEEDBACK */
+.feedback-box{padding:14px 18px;border-radius:11px;font-size:.86rem;line-height:1.6;margin-bottom:18px;display:none;}
+.feedback-box.show{display:block;animation:fadeUp .3s ease both;}
+.feedback-box.correct-fb{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#86efac;}
+.feedback-box.wrong-fb{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+
+/* REACTION SCENE */
+.reaction-scene{display:flex;align-items:center;justify-content:center;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:24px 16px;margin-bottom:20px;flex-wrap:wrap;}
+.reagent{background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.3);color:#fbd0b8;
+  padding:8px 16px;border-radius:9px;font-family:'Space Mono',monospace;font-size:.88rem;}
+.reagent.condition{background:rgba(192,132,252,.1);border-color:rgba(192,132,252,.3);color:#e9d5ff;font-size:.76rem;padding:5px 12px;}
+.arrow{font-size:1.6rem;color:var(--muted2);}
+.plus{font-size:1.2rem;color:var(--muted2);font-family:'Space Mono',monospace;}
+.reaction-q{font-size:1rem;font-weight:600;margin-bottom:14px;}
+.reaction-options{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px;}
+.rxn-opt{padding:13px 14px;background:var(--surface2);border:2px solid var(--border);border-radius:11px;
+  color:var(--text);font-family:'Space Mono',monospace;font-size:.8rem;cursor:pointer;transition:all .2s;text-align:center;line-height:1.5;}
+.rxn-opt:hover:not(:disabled){border-color:var(--accent2);background:rgba(255,107,53,.07);}
+.rxn-opt.correct{border-color:var(--success);background:rgba(34,197,94,.1);color:var(--success);}
+.rxn-opt.wrong{border-color:var(--error);background:rgba(239,68,68,.08);color:#fca5a5;}
+.rxn-opt:disabled{cursor:default;}
+.rxn-category{display:inline-block;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;
+  padding:3px 10px;border-radius:20px;background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.2);
+  color:var(--accent2);margin-bottom:10px;font-family:'Space Mono',monospace;}
+
+/* MEMORY */
+.memory-info{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.memory-stat{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 16px;flex:1;min-width:80px;text-align:center;}
+.memory-stat-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:3px;}
+.memory-stat-val{font-size:1.3rem;font-weight:800;font-family:'Space Mono',monospace;color:var(--accent4);}
+.memory-grid{display:grid;gap:7px;margin-bottom:18px;}
+.memory-card{aspect-ratio:1;cursor:pointer;position:relative;perspective:600px;}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.4,0,.2,1);border-radius:11px;}
+.memory-card.flipped .card-inner,.memory-card.matched .card-inner{transform:rotateY(180deg);}
+.card-front,.card-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid var(--border);}
+.card-front{background:var(--surface2);font-size:1.4rem;color:var(--border);transition:border-color .2s;}
+.memory-card:not(.flipped):not(.matched):hover .card-front{border-color:var(--accent4);}
+.card-back{background:var(--surface2);transform:rotateY(180deg);border-color:rgba(192,132,252,.4);}
+.memory-card.matched .card-back{border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.07);}
+.card-symbol{font-family:'Space Mono',monospace;font-size:clamp(.85rem,2.2vw,1.2rem);font-weight:700;color:var(--accent4);line-height:1;}
+.card-name{font-size:clamp(.5rem,1.3vw,.68rem);color:var(--muted2);text-align:center;margin-top:2px;padding:0 3px;}
+.card-number{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted2);margin-bottom:1px;}
+.card-category{font-size:.5rem;text-transform:uppercase;letter-spacing:.04em;padding:2px 5px;border-radius:3px;margin-top:2px;}
+
+/* ══ AI TUTOR ══ */
+.ai-chat{display:flex;flex-direction:column;gap:0;height:420px;}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:14px 14px 0 0;}
+.chat-messages::-webkit-scrollbar{width:4px;}
+.chat-messages::-webkit-scrollbar-track{background:transparent;}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.msg{max-width:80%;padding:12px 16px;border-radius:12px;font-size:.86rem;line-height:1.6;animation:fadeUp .3s ease;}
+.msg.user{align-self:flex-end;background:linear-gradient(135deg,rgba(0,229,255,.15),rgba(0,229,255,.08));
+  border:1px solid rgba(0,229,255,.25);color:var(--text);}
+.msg.ai{align-self:flex-start;background:linear-gradient(135deg,rgba(192,132,252,.12),rgba(192,132,252,.06));
+  border:1px solid rgba(192,132,252,.25);color:var(--text);}
+.msg.ai .ai-label{font-size:.65rem;color:var(--accent4);text-transform:uppercase;letter-spacing:.1em;
+  font-family:'Space Mono',monospace;margin-bottom:5px;display:flex;align-items:center;gap:5px;}
+.msg-typing{display:flex;gap:4px;align-items:center;padding:8px 0;}
+.dot{width:6px;height:6px;background:var(--accent4);border-radius:50%;animation:bounce .8s infinite;}
+.dot:nth-child(2){animation-delay:.15s;}
+.dot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.chat-input-row{display:flex;gap:0;border:1px solid var(--border);border-top:none;border-radius:0 0 14px 14px;overflow:hidden;}
+.chat-input{flex:1;background:var(--surface3);border:none;padding:14px 16px;color:var(--text);
+  font-family:'Syne',sans-serif;font-size:.88rem;outline:none;}
+.chat-input::placeholder{color:var(--muted);}
+.chat-send{background:linear-gradient(135deg,var(--accent4),#7c3aed);border:none;padding:0 20px;
+  color:#fff;cursor:pointer;font-size:1.1rem;transition:opacity .2s;}
+.chat-send:hover{opacity:.85;}
+.quick-questions{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;}
+.quick-q{padding:6px 12px;background:rgba(192,132,252,.1);border:1px solid rgba(192,132,252,.25);
+  border-radius:20px;font-size:.75rem;color:var(--accent4);cursor:pointer;transition:all .2s;font-family:'Space Mono',monospace;}
+.quick-q:hover{background:rgba(192,132,252,.2);}
+
+/* ══ ANALYTICS ══ */
+.analytics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.anal-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.anal-card-title{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);
+  font-family:'Space Mono',monospace;margin-bottom:10px;}
+.anal-big{font-size:2rem;font-weight:800;font-family:'Space Mono',monospace;}
+.anal-sub{font-size:.78rem;color:var(--muted2);margin-top:2px;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bar-row{display:flex;align-items:center;gap:10px;font-size:.78rem;}
+.bar-label{width:100px;color:var(--muted2);font-family:'Space Mono',monospace;font-size:.7rem;text-align:right;}
+.bar-track{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.bar-pct{width:36px;text-align:right;font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted2);}
+.weak-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;
+  font-size:.75rem;margin:3px;font-family:'Space Mono',monospace;}
+.weak-tag.weak{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#fca5a5;}
+.weak-tag.strong{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#86efac;}
+.insight-box{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:11px;padding:14px;margin-top:14px;font-size:.84rem;line-height:1.6;color:#fde68a;}
+
+/* ══ LEADERBOARD ══ */
+.lb-table{width:100%;border-collapse:separate;border-spacing:0 6px;}
+.lb-row{background:var(--surface2);}
+.lb-row td{padding:14px 16px;font-size:.88rem;}
+.lb-row td:first-child{border-radius:11px 0 0 11px;}
+.lb-row td:last-child{border-radius:0 11px 11px 0;}
+.lb-row.you{background:linear-gradient(135deg,rgba(0,229,255,.1),rgba(0,229,255,.05));border:1px solid rgba(0,229,255,.2);}
+.lb-rank{font-family:'Space Mono',monospace;font-weight:700;font-size:1rem;}
+.lb-rank.gold{color:#fbbf24;}
+.lb-rank.silver{color:#94a3b8;}
+.lb-rank.bronze{color:#b45309;}
+.lb-avatar{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:.9rem;margin-right:8px;}
+.lb-xp{font-family:'Space Mono',monospace;color:var(--accent);font-weight:700;}
+.lb-streak{font-family:'Space Mono',monospace;color:var(--accent2);}
+
+/* ══ ACHIEVEMENTS ══ */
+.achievements-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.ach-card{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;transition:all .3s;}
+.ach-card.unlocked{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.06);}
+.ach-card.locked{opacity:.45;filter:grayscale(.8);}
+.ach-icon{font-size:2rem;margin-bottom:8px;}
+.ach-name{font-size:.82rem;font-weight:700;margin-bottom:3px;}
+.ach-desc{font-size:.7rem;color:var(--muted2);line-height:1.4;}
+.ach-badge{display:inline-block;margin-top:6px;font-size:.62rem;padding:2px 8px;border-radius:10px;
+  font-family:'Space Mono',monospace;}
+.ach-badge.unlocked{background:rgba(245,158,11,.2);color:var(--warning);}
+.ach-badge.locked{background:rgba(255,255,255,.05);color:var(--muted);}
+
+/* ══ DAILY CHALLENGE ══ */
+.daily-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.daily-timer{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--accent2);
+  background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.25);padding:6px 14px;border-radius:20px;}
+.daily-streak-display{font-family:'Space Mono',monospace;font-size:.85rem;color:var(--warning);
+  background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.25);padding:6px 14px;border-radius:20px;}
+
+/* ══ EQUATION BALANCER ══ */
+.eq-display{font-family:'Space Mono',monospace;font-size:1.1rem;background:var(--surface2);
+  border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;margin-bottom:16px;line-height:2;}
+.coeff-input{width:44px;height:36px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.3);
+  border-radius:7px;color:var(--accent);font-family:'Space Mono',monospace;font-size:1rem;font-weight:700;
+  text-align:center;outline:none;margin:0 3px;}
+.coeff-input:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,229,255,.15);}
+.eq-check{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap;}
+.balance-result{padding:10px 16px;border-radius:10px;font-size:.88rem;font-weight:600;}
+.balance-result.ok{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--success);}
+.balance-result.fail{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+
+/* ══ RESULTS ══ */
+.results-panel{text-align:center;padding:36px 16px;animation:fadeUp .4s ease;}
+.big-score{font-size:3.5rem;font-weight:800;font-family:'Space Mono',monospace;
+  background:linear-gradient(135deg,var(--accent),var(--accent3));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:10px 0;}
+.grade{font-size:1rem;color:var(--muted2);margin-bottom:24px;}
+
+/* PARTICLES */
+.particle{position:fixed;pointer-events:none;border-radius:50%;z-index:9999;animation:burst .8s ease-out forwards;}
+@keyframes burst{from{opacity:1;transform:translate(0,0) scale(1);}to{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);
+  border-radius:12px;padding:14px 18px;z-index:9998;font-size:.88rem;animation:slideIn .3s ease;
+  display:flex;align-items:center;gap:10px;max-width:300px;}
+@keyframes slideIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.toast.achievement{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.1);}
+
+/* ENGG topic pills */
+#engg-topic-btns .diff-btn{font-size:.75rem;padding:7px 13px;}
+#engg-topic-btns .diff-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(0,229,255,.08);}
+
+@media(max-width:640px){
+  .analytics-grid{grid-template-columns:1fr 1fr;}
+  .achievements-grid{grid-template-columns:repeat(2,1fr);}
+  .options-grid,.reaction-options{grid-template-columns:1fr;}
+  .top-stats{grid-template-columns:repeat(3,1fr);}
+  .panel{padding:16px;}
+  .nav-btn{font-size:.65rem;}
+  #engg-topic-btns .diff-btn{font-size:.68rem;padding:6px 9px;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">⚗️ ChemLab<span class="pro-badge">PRO</span></div>
+  <div class="logo-sub">AI-Powered Chemistry Learning Platform</div>
+</header>
+
+<!-- TOP STATS -->
+<div class="top-stats">
+  <div class="stat-card"><div class="stat-label">Total XP</div><div class="stat-val" id="s-xp" style="color:var(--accent)">0</div></div>
+  <div class="stat-card"><div class="stat-label">🔥 Streak</div><div class="stat-val" id="s-streak" style="color:var(--accent2)">0</div></div>
+  <div class="stat-card"><div class="stat-label">Best</div><div class="stat-val" id="s-best" style="color:var(--accent3)">0</div></div>
+  <div class="stat-card"><div class="stat-label">Accuracy</div><div class="stat-val" id="s-acc" style="color:var(--accent4)">–</div></div>
+  <div class="stat-card"><div class="stat-label">Questions</div><div class="stat-val" id="s-qs" style="color:var(--muted2)">0</div></div>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchTab('fg')" id="tab-fg"><span class="icon">🧬</span>Groups</button>
+  <button class="nav-btn" onclick="switchTab('rxn')" id="tab-rxn"><span class="icon">⚗️</span>Reactions</button>
+  <button class="nav-btn" onclick="switchTab('mem')" id="tab-mem"><span class="icon">🔬</span>Memory</button>
+  <button class="nav-btn" onclick="switchTab('eq')" id="tab-eq"><span class="icon">⚖️</span>Balance</button>
+  <button class="nav-btn" onclick="switchTab('ai')" id="tab-ai"><span class="icon">🤖</span>AI Tutor</button>
+  <button class="nav-btn" onclick="switchTab('analytics')" id="tab-analytics"><span class="icon">📊</span>Analytics</button>
+  <button class="nav-btn" onclick="switchTab('lb')" id="tab-lb"><span class="icon">🏆</span>Board</button>
+  <button class="nav-btn" onclick="switchTab('ach')" id="tab-ach"><span class="icon">🎖️</span>Badges</button>
+  <button class="nav-btn" onclick="switchTab('daily')" id="tab-daily"><span class="icon">📅</span>Daily<span class="notif" id="daily-notif">!</span></button>
+  <button class="nav-btn" onclick="switchTab('engg')" id="tab-engg"><span class="icon">🎓</span>1st Year</button>
+</nav>
+
+<!-- ══ PANEL: FUNCTIONAL GROUPS ══ -->
+<div id="game-fg" class="panel active">
+  <div class="panel-title">🧬 Functional Group Matcher</div>
+  <div class="panel-desc">Identify the functional group from its structural formula.</div>
+  <div class="diff-row" id="fg-diff">
+    <button class="diff-btn active" onclick="setFGDiff('easy',this)">Easy</button>
+    <button class="diff-btn" onclick="setFGDiff('medium',this)">Medium</button>
+    <button class="diff-btn" onclick="setFGDiff('hard',this)">Hard</button>
+  </div>
+  <div id="fg-game">
+    <div class="q-counter" id="fg-qcount">Question 1 of 8</div>
+    <div class="progress-bar"><div class="progress-fill" id="fg-progress" style="width:0%"></div></div>
+    <div class="question-box">
+      <div class="fg-structure" id="fg-structure"></div>
+      <div class="fg-hint" id="fg-hint"></div>
+    </div>
+    <div class="options-grid" id="fg-options"></div>
+    <div class="feedback-box" id="fg-feedback"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="fg-next" onclick="nextFGQuestion()" style="display:none">Next →</button>
+      <button class="btn btn-ai" onclick="askAIAboutCurrent('fg')" id="fg-ask-ai" style="display:none">🤖 Ask AI</button>
+    </div>
+  </div>
+  <div id="fg-results" class="results-panel" style="display:none"></div>
+</div>
+
+<!-- ══ PANEL: REACTIONS ══ -->
+<div id="game-rxn" class="panel">
+  <div class="panel-title">⚗️ Reaction Predictor</div>
+  <div class="panel-desc">Predict products given reactants and conditions.</div>
+  <div class="diff-row" id="rxn-diff">
+    <button class="diff-btn active" onclick="setRxnDiff('easy',this)">Easy</button>
+    <button class="diff-btn" onclick="setRxnDiff('medium',this)">Medium</button>
+    <button class="diff-btn" onclick="setRxnDiff('hard',this)">Hard</button>
+  </div>
+  <div id="rxn-game">
+    <div class="q-counter" id="rxn-qcount">Question 1 of 6</div>
+    <div class="progress-bar"><div class="progress-fill" id="rxn-progress" style="width:0%"></div></div>
+    <div class="reaction-scene" id="rxn-scene"></div>
+    <div id="rxn-cat" class="rxn-category"></div>
+    <div class="reaction-q" id="rxn-question"></div>
+    <div class="reaction-options" id="rxn-options"></div>
+    <div class="feedback-box" id="rxn-feedback"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="rxn-next" onclick="nextRxnQuestion()" style="display:none">Next →</button>
+      <button class="btn btn-ai" onclick="askAIAboutCurrent('rxn')" id="rxn-ask-ai" style="display:none">🤖 Ask AI</button>
+    </div>
+  </div>
+  <div id="rxn-results" class="results-panel" style="display:none"></div>
+</div>
+
+<!-- ══ PANEL: MEMORY ══ -->
+<div id="game-mem" class="panel">
+  <div class="panel-title">🔬 Element Memory Game</div>
+  <div class="panel-desc">Match element symbols to their names.</div>
+  <div class="diff-row" id="mem-diff">
+    <button class="diff-btn active" onclick="setMemDiff(4,this)">4×4</button>
+    <button class="diff-btn" onclick="setMemDiff(5,this)">5×4</button>
+    <button class="diff-btn" onclick="setMemDiff(6,this)">6×4</button>
+  </div>
+  <div class="memory-info">
+    <div class="memory-stat"><div class="memory-stat-label">Moves</div><div class="memory-stat-val" id="mem-moves">0</div></div>
+    <div class="memory-stat"><div class="memory-stat-label">Pairs</div><div class="memory-stat-val" id="mem-pairs">0/8</div></div>
+    <div class="memory-stat"><div class="memory-stat-label">Time</div><div class="memory-stat-val" id="mem-time">0s</div></div>
+  </div>
+  <div class="memory-grid" id="mem-grid"></div>
+  <div style="display:flex;gap:10px;">
+    <button class="btn btn-secondary" onclick="initMemGame()">🔄 New Game</button>
+  </div>
+  <div id="mem-complete" style="display:none" class="results-panel"></div>
+</div>
+
+<!-- ══ PANEL: EQUATION BALANCER ══ -->
+<div id="game-eq" class="panel">
+  <div class="panel-title">⚖️ Balance the Equation</div>
+  <div class="panel-desc">Enter coefficients to balance the chemical equation.</div>
+  <div class="diff-row" id="eq-diff">
+    <button class="diff-btn active" onclick="setEqDiff('easy',this)">Easy</button>
+    <button class="diff-btn" onclick="setEqDiff('medium',this)">Medium</button>
+    <button class="diff-btn" onclick="setEqDiff('hard',this)">Hard</button>
+  </div>
+  <div class="q-counter" id="eq-qcount">Equation 1 of 6</div>
+  <div class="progress-bar"><div class="progress-fill" id="eq-progress" style="width:0%"></div></div>
+  <div class="eq-display" id="eq-display"></div>
+  <div class="eq-check">
+    <button class="btn btn-primary" onclick="checkBalance()">Check ✓</button>
+    <button class="btn btn-secondary" onclick="showBalanceHint()">💡 Hint</button>
+    <div class="balance-result" id="eq-result" style="display:none"></div>
+  </div>
+  <div class="feedback-box" id="eq-feedback"></div>
+  <button class="btn btn-primary" id="eq-next" onclick="nextEqQuestion()" style="display:none;margin-top:12px">Next →</button>
+  <div id="eq-results" class="results-panel" style="display:none"></div>
+</div>
+
+<!-- ══ PANEL: AI TUTOR ══ -->
+<div id="game-ai" class="panel">
+  <div class="panel-title">🤖 AI Chemistry Tutor</div>
+  <div class="panel-desc">Ask anything about chemistry — reactions, mechanisms, concepts, exam tips.</div>
+  <div class="quick-questions" id="quick-qs">
+    <span class="quick-q" onclick="sendQuick('Explain the SN1 vs SN2 mechanism')">SN1 vs SN2</span>
+    <span class="quick-q" onclick="sendQuick('What is Le Chatelier\'s principle?')">Le Chatelier</span>
+    <span class="quick-q" onclick="sendQuick('Explain hardness of water and its types')">Water Hardness</span>
+    <span class="quick-q" onclick="sendQuick('Explain galvanic corrosion with example')">Galvanic Corrosion</span>
+    <span class="quick-q" onclick="sendQuick('Difference between thermoplastics and thermosets with examples')">Polymers</span>
+    <span class="quick-q" onclick="sendQuick('Explain properties and applications of carbon nanotubes')">Carbon Nanotubes</span>
+    <span class="quick-q" onclick="sendQuick('What is calorific value and explain HCV vs LCV')">Calorific Value</span>
+    <span class="quick-q" onclick="sendQuick('Explain cathodic protection methods')">Cathodic Protection</span>
+  </div>
+  <div class="ai-chat">
+    <div class="chat-messages" id="chat-messages">
+      <div class="msg ai">
+        <div class="ai-label">⚗️ ChemBot AI</div>
+        Hello! I'm your AI Chemistry Tutor. Ask me anything — from basic atomic theory to advanced organic mechanisms. What would you like to learn today?
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-input" id="chat-input" placeholder="Ask a chemistry question..." onkeydown="if(event.key==='Enter')sendChat()">
+      <button class="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL: ANALYTICS ══ -->
+<div id="game-analytics" class="panel">
+  <div class="panel-title">📊 Performance Analytics</div>
+  <div class="panel-desc">Track your strengths, weaknesses, and progress over time.</div>
+  <div class="analytics-grid" id="analytics-grid"></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+    <div class="anal-card">
+      <div class="anal-card-title">Topic Accuracy</div>
+      <div class="bar-chart" id="topic-bars"></div>
+    </div>
+    <div class="anal-card">
+      <div class="anal-card-title">Strengths & Weaknesses</div>
+      <div id="weak-tags"></div>
+    </div>
+  </div>
+  <div class="insight-box" id="ai-insight">💡 <strong>AI Insight:</strong> Complete more questions to unlock personalised study recommendations.</div>
+</div>
+
+<!-- ══ PANEL: LEADERBOARD ══ -->
+<div id="game-lb" class="panel">
+  <div class="panel-title">🏆 Leaderboard</div>
+  <div class="panel-desc">See how you rank against other ChemLab students.</div>
+  <table class="lb-table" id="lb-table"></table>
+</div>
+
+<!-- ══ PANEL: ACHIEVEMENTS ══ -->
+<div id="game-ach" class="panel">
+  <div class="panel-title">🎖️ Achievements</div>
+  <div class="panel-desc">Unlock badges by completing challenges and milestones.</div>
+  <div class="achievements-grid" id="ach-grid"></div>
+</div>
+
+<!-- ══ PANEL: DAILY CHALLENGE ══ -->
+<div id="game-daily" class="panel">
+  <div class="panel-title">📅 Daily Challenge</div>
+  <div class="panel-desc">One special question per day. Maintain your daily streak for bonus XP!</div>
+  <div class="daily-header">
+    <div class="daily-timer" id="daily-timer">⏰ Resets in: --:--:--</div>
+    <div class="daily-streak-display" id="daily-streak-disp">🗓️ Daily Streak: 0</div>
+  </div>
+  <div id="daily-content"></div>
+</div>
+
+<!-- ══ PANEL: 1ST YEAR ENGINEERING CHEMISTRY ══ -->
+<div id="game-engg" class="panel">
+  <div class="panel-title">🎓 1st Year Engineering Chemistry</div>
+  <div class="panel-desc">Topic-wise MCQs covering all 5 core units of your engineering chemistry syllabus.</div>
+
+  <!-- Topic Selector -->
+  <div style="margin-bottom:18px;">
+    <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);font-family:'Space Mono',monospace;margin-bottom:10px;">Select Topic</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;" id="engg-topic-btns">
+      <button class="diff-btn active" onclick="setEnggTopic('water',this)">💧 Water Technology</button>
+      <button class="diff-btn" onclick="setEnggTopic('fuels',this)">🔥 Fuels & Combustion</button>
+      <button class="diff-btn" onclick="setEnggTopic('corrosion',this)">🦠 Corrosion</button>
+      <button class="diff-btn" onclick="setEnggTopic('polymers',this)">🧵 Polymers</button>
+      <button class="diff-btn" onclick="setEnggTopic('carbon',this)">💎 Noble Carbon</button>
+    </div>
+  </div>
+
+  <div class="diff-row" id="engg-diff">
+    <button class="diff-btn active" onclick="setEnggDiff('easy',this)">Easy</button>
+    <button class="diff-btn" onclick="setEnggDiff('medium',this)">Medium</button>
+    <button class="diff-btn" onclick="setEnggDiff('hard',this)">Hard</button>
+  </div>
+
+  <div id="engg-game">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <div class="q-counter" id="engg-qcount">Question 1 of 10</div>
+      <div id="engg-topic-badge" style="font-size:.72rem;padding:3px 10px;border-radius:20px;background:rgba(0,229,255,.1);border:1px solid rgba(0,229,255,.25);color:var(--accent);font-family:'Space Mono',monospace;"></div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="engg-progress" style="width:0%"></div></div>
+    <div class="question-box">
+      <div class="fg-structure" id="engg-question" style="font-size:1rem;text-align:left;line-height:1.6;color:var(--text)"></div>
+      <div class="fg-hint" id="engg-hint" style="margin-top:8px;font-size:.8rem"></div>
+    </div>
+    <div class="options-grid" id="engg-options"></div>
+    <div class="feedback-box" id="engg-feedback"></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn btn-primary" id="engg-next" onclick="nextEnggQuestion()" style="display:none">Next →</button>
+      <button class="btn btn-ai" onclick="askAIAboutCurrent('engg')" id="engg-ask-ai" style="display:none">🤖 Ask AI</button>
+    </div>
+  </div>
+  <div id="engg-results" class="results-panel" style="display:none"></div>
+</div>
+
+</div><!-- .app -->
+
+<script>
+// ════════════════════════════════
+// STATE
+// ════════════════════════════════
+const STATE = {
+  xp:0, streak:0, best:0, totalQ:0, totalCorrect:0,
+  topicStats:{}, dailyStreak:0, dailyDone:false,
+  achievements:{}
+};
+
+function addXP(pts, e) {
+  STATE.xp += pts; STATE.streak++; STATE.totalCorrect++;
+  if(STATE.streak > STATE.best) STATE.best = STATE.streak;
+  updateStats(); checkAchievements();
+  if(pts>0 && e) burst(e);
+}
+function breakStreak() { STATE.streak = 0; updateStats(); }
+function recordQ(topic, correct) {
+  STATE.totalQ++;
+  if(!STATE.topicStats[topic]) STATE.topicStats[topic]={correct:0,total:0};
+  STATE.topicStats[topic].total++;
+  if(correct) STATE.topicStats[topic].correct++;
+}
+function updateStats() {
+  const acc = STATE.totalQ ? Math.round(STATE.totalCorrect/STATE.totalQ*100) : null;
+  setText('s-xp', STATE.xp);
+  setText('s-streak', STATE.streak);
+  setText('s-best', STATE.best);
+  setText('s-acc', acc !== null ? acc+'%' : '–');
+  setText('s-qs', STATE.totalQ);
+  ['s-xp','s-streak'].forEach(id => { const el=document.getElementById(id); el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),300); });
+}
+function setText(id,v){ const el=document.getElementById(id); if(el) el.textContent=v; }
+
+function switchTab(id) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('game-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+  if(id==='analytics') renderAnalytics();
+  if(id==='lb') renderLeaderboard();
+  if(id==='ach') renderAchievements();
+  if(id==='daily') renderDaily();
+}
+
+function burst(e) {
+  const colors=['#00e5ff','#7cfc00','#ff6b35','#c084fc','#f59e0b'];
+  for(let i=0;i<14;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const sz=5+Math.random()*9, angle=(Math.PI*2*i)/14+Math.random()*.5, dist=50+Math.random()*90;
+    p.style.cssText=`width:${sz}px;height:${sz}px;background:${colors[i%colors.length]};
+      left:${(e.clientX||window.innerWidth/2)-sz/2}px;top:${(e.clientY||window.innerHeight/2)-sz/2}px;
+      --tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;`;
+    document.body.appendChild(p); setTimeout(()=>p.remove(),800);
+  }
+}
+
+function showToast(msg, type='') {
+  const t=document.createElement('div'); t.className='toast '+(type==='achievement'?'achievement':'');
+  t.innerHTML=msg; document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateY(10px)'; t.style.transition='all .3s'; setTimeout(()=>t.remove(),300); },3000);
+}
+
+function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escA(s){ return String(s).replace(/'/g,"&#39;"); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// ════════════════════════════════
+// GAME 1 — FUNCTIONAL GROUPS
+// ════════════════════════════════
+const FGQ = {
+  easy:[
+    {structure:"R—OH",hint:"Oxygen-hydrogen bond on carbon",answer:"Alcohol",options:["Alcohol","Ketone","Ether","Amine"],explain:"The hydroxyl (–OH) group defines an alcohol. e.g. ethanol CH₃CH₂OH.",topic:"Functional Groups"},
+    {structure:"R—COOH",hint:"Carboxyl group",answer:"Carboxylic Acid",options:["Ester","Carboxylic Acid","Aldehyde","Amide"],explain:"–COOH = carboxyl: carbonyl + hydroxyl. Found in acetic acid, amino acids.",topic:"Functional Groups"},
+    {structure:"R—NH₂",hint:"Nitrogen with two hydrogens",answer:"Amine",options:["Amide","Amine","Imine","Nitrile"],explain:"Primary amines –NH₂ are basic. Found in amino acids and drugs.",topic:"Functional Groups"},
+    {structure:"R—CHO",hint:"Carbonyl at chain end",answer:"Aldehyde",options:["Ketone","Aldehyde","Ester","Ether"],explain:"–CHO group: carbonyl bonded to at least one H. e.g. formaldehyde, benzaldehyde.",topic:"Functional Groups"},
+    {structure:"R—CO—R'",hint:"Carbonyl flanked by two carbons",answer:"Ketone",options:["Aldehyde","Amide","Ketone","Carboxylic Acid"],explain:"Ketones: C=O between two carbon groups. Acetone is the simplest.",topic:"Functional Groups"},
+    {structure:"R—O—R'",hint:"Oxygen bridges two carbon groups",answer:"Ether",options:["Alcohol","Ether","Ester","Peroxide"],explain:"Ethers have –O– between two alkyl/aryl groups. e.g. diethyl ether.",topic:"Functional Groups"},
+    {structure:"R—CO—O—R'",hint:"From acid + alcohol condensation",answer:"Ester",options:["Ether","Ester","Anhydride","Lactone"],explain:"Esters –COO– give fruity smells; used in polyesters, fats.",topic:"Functional Groups"},
+    {structure:"R—CO—NH₂",hint:"Carbonyl bonded to nitrogen",answer:"Amide",options:["Amine","Amide","Imine","Nitrile"],explain:"Amides –CO–NH–. The peptide bond in proteins is an amide.",topic:"Functional Groups"},
+  ],
+  medium:[
+    {structure:"R—C≡N",hint:"Triple bond to nitrogen",answer:"Nitrile",options:["Imine","Nitro","Nitrile","Amide"],explain:"Nitriles –C≡N used as solvents (acetonitrile) and polymer precursors.",topic:"Functional Groups"},
+    {structure:"R—NO₂",hint:"Nitrogen with two oxygens",answer:"Nitro",options:["Nitrile","Nitro","Azo","Amine"],explain:"Nitro –NO₂ are electron-withdrawing; found in explosives and dyes.",topic:"Functional Groups"},
+    {structure:"R—SH",hint:"Like alcohol but with sulfur",answer:"Thiol",options:["Sulfide","Thiol","Sulfoxide","Disulfide"],explain:"Thiols –SH have pungent odor; cysteine amino acid has a thiol group.",topic:"Functional Groups"},
+    {structure:"Ar—OH",hint:"Hydroxyl on a benzene ring",answer:"Phenol",options:["Alcohol","Phenol","Enol","Diol"],explain:"Phenols more acidic than alcohols — ring stabilises phenoxide ion.",topic:"Functional Groups"},
+    {structure:"R—CO—O—CO—R'",hint:"Two acyl groups joined by oxygen",answer:"Anhydride",options:["Ester","Anhydride","Peroxide","Acetal"],explain:"Acid anhydrides more reactive than esters; used in aspirin synthesis.",topic:"Functional Groups"},
+    {structure:"R—C(=NH)—R'",hint:"Double bond to nitrogen",answer:"Imine",options:["Imine","Enamine","Oxime","Hydrazone"],explain:"Imines (Schiff bases) form when primary amines react with carbonyls.",topic:"Functional Groups"},
+    {structure:"R—O—O—R'",hint:"Oxygen-oxygen single bond",answer:"Peroxide",options:["Ether","Epoxide","Peroxide","Oxide"],explain:"Peroxides contain –O–O–. H₂O₂ is the simplest peroxide.",topic:"Functional Groups"},
+    {structure:"R—B(OH)₂",hint:"Boron with two hydroxyls",answer:"Boronic Acid",options:["Boronic Acid","Borate ester","Diborane","Borane"],explain:"Boronic acids key in Suzuki coupling and covalent drug design.",topic:"Functional Groups"},
+  ],
+  hard:[
+    {structure:"R—CH=CH—COR'",hint:"Carbonyl conjugated with alkene",answer:"Enone (α,β-unsaturated)",options:["Enol","Enone (α,β-unsaturated)","Vinyl ester","Diene"],explain:"Enones undergo 1,4-Michael addition and Diels-Alder reactions.",topic:"Functional Groups"},
+    {structure:"R—C(=O)—Cl",hint:"Highly reactive acyl halide",answer:"Acyl Chloride",options:["Alkyl halide","Acyl Chloride","Chloroether","Vinyl chloride"],explain:"Acyl chlorides most reactive acyl derivatives; used in Friedel-Crafts.",topic:"Functional Groups"},
+    {structure:"R—SO₃H",hint:"Sulfur with three oxygens and OH",answer:"Sulfonic Acid",options:["Sulfoxide","Sulfone","Sulfonic Acid","Sulfate"],explain:"Sulfonic acids are very strong; used in sulfa drugs and ion-exchange.",topic:"Functional Groups"},
+    {structure:"R—S(=O)—R'",hint:"Sulfur with one double-bond oxygen",answer:"Sulfoxide",options:["Sulfone","Sulfoxide","Sulfide","Sulfenic Acid"],explain:"Sulfoxides are chiral; DMSO is a widely used sulfoxide solvent.",topic:"Functional Groups"},
+    {structure:"R—O—C(=O)—O—R'",hint:"Two alkoxy groups on a carbonyl",answer:"Carbonate",options:["Carbonate","Carbamate","Anhydride","Lactone"],explain:"Carbonates used as solvents and in polycarbonate plastics.",topic:"Functional Groups"},
+    {structure:"R₂N—CO—OR'",hint:"Carbonyl bonded to both N and O",answer:"Carbamate",options:["Amide","Ester","Carbamate","Carbonate"],explain:"Carbamates backbone of polyurethanes; also used as protecting groups.",topic:"Functional Groups"},
+    {structure:"R—P(=O)(OH)₂",hint:"Phosphorus analogue of carboxylic acid",answer:"Phosphonic Acid",options:["Phosphate","Phosphonic Acid","Phosphine","Phosphoramide"],explain:"Phosphonic acids used as enzyme inhibitors and in materials science.",topic:"Functional Groups"},
+    {structure:"R—CHO + 2R'OH ⇌ R—CH(OR')₂",hint:"Product of aldehyde + 2 alcohols",answer:"Acetal",options:["Hemiacetal","Acetal","Ketal","Orthoester"],explain:"Acetals are aldehyde protecting groups; stable under basic conditions.",topic:"Functional Groups"},
+  ]
+};
+
+let fgDiff='easy',fgIdx=0,fgScore=0,fgQ=[],fgCurrent=null;
+function setFGDiff(d,btn){ fgDiff=d; document.querySelectorAll('#fg-diff .diff-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); startFGGame(); }
+function startFGGame(){ fgIdx=0;fgScore=0; fgQ=shuffle([...FGQ[fgDiff]]).slice(0,8); document.getElementById('fg-game').style.display=''; document.getElementById('fg-results').style.display='none'; renderFGQ(); }
+function renderFGQ(){
+  fgCurrent=fgQ[fgIdx];
+  setText('fg-qcount',`Question ${fgIdx+1} of ${fgQ.length}`);
+  document.getElementById('fg-progress').style.width=`${(fgIdx/fgQ.length)*100}%`;
+  document.getElementById('fg-structure').textContent=fgCurrent.structure;
+  document.getElementById('fg-hint').textContent='💡 '+fgCurrent.hint;
+  document.getElementById('fg-feedback').className='feedback-box';
+  document.getElementById('fg-next').style.display='none';
+  document.getElementById('fg-ask-ai').style.display='none';
+  const grid=document.getElementById('fg-options');
+  grid.innerHTML=shuffle([...fgCurrent.options]).map(o=>`<button class="option-btn" onclick="checkFG('${escA(o)}')">${escH(o)}</button>`).join('');
+}
+function checkFG(chosen){
+  const q=fgCurrent, correct=chosen===q.answer;
+  document.querySelectorAll('.option-btn').forEach(b=>{ b.disabled=true; if(b.textContent===q.answer) b.classList.add('correct'); else if(b.textContent===chosen&&!correct) b.classList.add('wrong'); });
+  const xp=fgDiff==='easy'?10:fgDiff==='medium'?20:30;
+  const fb=document.getElementById('fg-feedback');
+  if(correct){ fb.className='feedback-box correct-fb show'; fb.innerHTML=`✅ <strong>Correct! +${xp} XP</strong><br>${q.explain}`; addXP(xp,event); fgScore+=xp; }
+  else{ fb.className='feedback-box wrong-fb show'; fb.innerHTML=`❌ Answer: <strong>${q.answer}</strong> — ${q.explain}`; breakStreak(); }
+  recordQ(q.topic, correct);
+  document.getElementById('fg-next').style.display='inline-flex';
+  document.getElementById('fg-ask-ai').style.display='inline-flex';
+}
+function nextFGQuestion(){ fgIdx++; if(fgIdx>=fgQ.length) return showFGResults(); renderFGQ(); }
+function showFGResults(){
+  document.getElementById('fg-game').style.display='none';
+  const r=document.getElementById('fg-results'); r.style.display='block';
+  const mx=fgQ.length*(fgDiff==='easy'?10:fgDiff==='medium'?20:30), pct=Math.round(fgScore/mx*100);
+  r.innerHTML=`<div style="font-size:2.5rem">🧬</div><h2 style="margin:8px 0">Functional Groups Complete!</h2><div class="big-score">${fgScore} XP</div><div class="grade">${pct}% — ${grade(pct)}</div><button class="btn btn-primary" onclick="startFGGame()">Play Again</button>`;
+}
+
+// ════════════════════════════════
+// GAME 2 — REACTIONS
+// ════════════════════════════════
+const RXNQ = {
+  easy:[
+    {category:"Acid-Base",reactants:["HCl (aq)","NaOH (aq)"],conditions:[],question:"Products of neutralisation?",answer:"NaCl + H₂O",options:["NaCl + H₂O","Na + HCl₂","NaOH₂ + Cl","No reaction"],explain:"HCl + NaOH → NaCl + H₂O. Strong acid + base → salt + water.",topic:"Acid-Base"},
+    {category:"Combustion",reactants:["CH₄","O₂"],conditions:["excess O₂"],question:"Complete combustion of methane?",answer:"CO₂ + H₂O",options:["CO₂ + H₂O","CO + H₂O","C + H₂","CH₃OH"],explain:"CH₄ + 2O₂ → CO₂ + 2H₂O. Incomplete combustion gives CO.",topic:"Combustion"},
+    {category:"Addition",reactants:["CH₂=CH₂","Br₂"],conditions:["CCl₄"],question:"Bromine adds across the double bond?",answer:"CH₂Br—CH₂Br",options:["CH₂Br—CH₂Br","CHBr=CHBr","CH₃CHO","CH₂=CH₂ + HBr"],explain:"Electrophilic addition: Br₂ adds across C=C giving 1,2-dibromoethane.",topic:"Addition Reactions"},
+    {category:"Substitution",reactants:["CH₄","Cl₂"],conditions:["UV light"],question:"Initial product of radical halogenation?",answer:"CH₃Cl + HCl",options:["CH₃Cl + HCl","CH₂Cl₂ + H₂","CCl₄ only","No reaction"],explain:"UV initiates Cl• radicals. CH₄ + Cl₂ → CH₃Cl + HCl (initial product).",topic:"Substitution Reactions"},
+    {category:"Esterification",reactants:["CH₃COOH","CH₃OH"],conditions:["H₂SO₄, Δ"],question:"Product of this condensation?",answer:"CH₃COOCH₃ + H₂O",options:["CH₃COOCH₃ + H₂O","CH₃COCH₃ + H₂","CH₃CH₂OH","CH₃CONH₂"],explain:"Fischer esterification: acid + alcohol ⇌ ester + water. Reversible.",topic:"Esterification"},
+    {category:"Reduction",reactants:["CH₃CHO"],conditions:["NaBH₄, H₂O"],question:"Ethanal is reduced to?",answer:"CH₃CH₂OH",options:["CH₃CH₂OH","CH₃COOH","CH₃CO⁻","CH₃CH₃"],explain:"NaBH₄ reduces aldehydes to primary alcohols. CH₃CHO → CH₃CH₂OH.",topic:"Redox Reactions"},
+  ],
+  medium:[
+    {category:"Elimination",reactants:["CH₃CH₂Br"],conditions:["KOH / EtOH, Δ"],question:"Main product (elimination)?",answer:"CH₂=CH₂ + KBr + H₂O",options:["CH₂=CH₂ + KBr + H₂O","CH₃CH₂OH","CH₃CHO","CH₃COOK"],explain:"Hot alcoholic KOH favours E2 elimination → ethene.",topic:"Elimination Reactions"},
+    {category:"Grignard",reactants:["CH₃MgBr","CH₃CHO"],conditions:["ether, then H₃O⁺"],question:"Product after aqueous workup?",answer:"CH₃CH(OH)CH₃",options:["CH₃CH(OH)CH₃","CH₃CH₂CHO","CH₃COCH₃","CH₃COOH"],explain:"Grignard nucleophilic addition to carbonyl → secondary alcohol after workup.",topic:"Organometallics"},
+    {category:"Oxidation",reactants:["CH₃CH₂OH"],conditions:["K₂Cr₂O₇, H₂SO₄, distil"],question:"Primary alcohol oxidised (distilled off)?",answer:"CH₃CHO (aldehyde)",options:["CH₃CHO (aldehyde)","CH₃COOH","CH₃COCH₃","CH₃CH₂Cl"],explain:"Distilling off aldehyde prevents over-oxidation to carboxylic acid.",topic:"Redox Reactions"},
+    {category:"Friedel-Crafts",reactants:["Benzene","CH₃COCl"],conditions:["AlCl₃"],question:"Friedel-Crafts acylation product?",answer:"Acetophenone + HCl",options:["Acetophenone + HCl","Chlorobenzene + CH₃CO","Toluene + CO","Phenol + CH₃Cl"],explain:"AlCl₃ generates acylium ion CH₃CO⁺ → attacks benzene ring → acetophenone.",topic:"Aromatic Chemistry"},
+    {category:"Nucleophilic Acyl",reactants:["CH₃COCl","NH₃"],conditions:["RT"],question:"Acyl chloride + ammonia?",answer:"CH₃CONH₂ + HCl",options:["CH₃CONH₂ + HCl","CH₃CONHNH₂","CH₃NH₂ + CO","CH₃OH + NCl₃"],explain:"Nucleophilic acyl substitution. Acyl chlorides are very reactive electrophiles.",topic:"Nucleophilic Substitution"},
+    {category:"Diels-Alder",reactants:["Butadiene","Maleic anhydride"],conditions:["heat"],question:"This [4+2] cycloaddition gives?",answer:"Bicyclic anhydride adduct",options:["Bicyclic anhydride adduct","Linear 1,4-adduct","Furan + water","No reaction"],explain:"Diels-Alder: diene + dienophile → 6-membered ring. Stereospecific, concerted.",topic:"Cycloadditions"},
+  ],
+  hard:[
+    {category:"Wittig",reactants:["Ph₃P=CH₂","CH₃CHO"],conditions:["THF"],question:"Wittig converts aldehyde to?",answer:"CH₃CH=CH₂ + Ph₃P=O",options:["CH₃CH=CH₂ + Ph₃P=O","CH₃CH₂OH","CH₃COCH₃","CH₃CH₂PPh₃"],explain:"Wittig: ylide + carbonyl → alkene + Ph₃P=O via oxetane intermediate.",topic:"Named Reactions"},
+    {category:"Suzuki",reactants:["ArBr","Ar'B(OH)₂"],conditions:["Pd(PPh₃)₄, K₂CO₃"],question:"Pd-catalysed cross-coupling?",answer:"Ar—Ar' + B(OH)₃ + KBr",options:["Ar—Ar' + B(OH)₃ + KBr","ArH + Ar'OH","Ar—O—Ar'","Ar—Ar + Br₂"],explain:"Suzuki: oxidative addition → transmetalation → reductive elimination. Nobel Prize.",topic:"Named Reactions"},
+    {category:"Birch",reactants:["Benzene"],conditions:["Na / liq. NH₃, t-BuOH"],question:"Birch reduction of benzene gives?",answer:"1,4-cyclohexadiene",options:["1,4-cyclohexadiene","Cyclohexane","Cyclohexene","Phenol"],explain:"Dissolving metal reduction: solvated electrons add to ring giving 1,4-diene.",topic:"Aromatic Chemistry"},
+    {category:"Metathesis",reactants:["2 R–CH=CH₂"],conditions:["Grubbs cat., CH₂Cl₂"],question:"Cross-metathesis of terminal alkenes?",answer:"R–CH=CH–R + CH₂=CH₂",options:["R–CH=CH–R + CH₂=CH₂","R–CH₂–CH₂–R","R₂C=O","Unchanged"],explain:"Olefin metathesis via metallocyclobutane. Grubbs Ru-alkylidene. Nobel 2005.",topic:"Named Reactions"},
+    {category:"Sharpless",reactants:["Allylic alcohol","t-BuOOH"],conditions:["Ti(OiPr)₄, L-DIPT"],question:"Asymmetric epoxidation gives?",answer:"Chiral epoxy alcohol (>90% ee)",options:["Chiral epoxy alcohol (>90% ee)","Racemic diol","Allylic ketone","Unchanged"],explain:"Sharpless: tartrate ligand delivers O face-selectively. Nobel Prize 2001.",topic:"Stereochemistry"},
+    {category:"Retro-Diels-Alder",reactants:["Cyclohexene adduct"],conditions:["high Δ, pyrolysis"],question:"Retro-Diels-Alder gives?",answer:"Diene + dienophile fragments",options:["Diene + dienophile fragments","Benzene + H₂","Cyclohexane","Cyclohexanone"],explain:"Retro-DA: thermally allowed [4+2] retrocycloreversion — useful in total synthesis.",topic:"Cycloadditions"},
+  ]
+};
+
+let rxnDiff='easy',rxnIdx=0,rxnScore=0,rxnQ=[],rxnCurrent=null;
+function setRxnDiff(d,btn){ rxnDiff=d; document.querySelectorAll('#rxn-diff .diff-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); startRxnGame(); }
+function startRxnGame(){ rxnIdx=0;rxnScore=0; rxnQ=shuffle([...RXNQ[rxnDiff]]).slice(0,6); document.getElementById('rxn-game').style.display=''; document.getElementById('rxn-results').style.display='none'; renderRxnQ(); }
+function renderRxnQ(){
+  rxnCurrent=rxnQ[rxnIdx];
+  setText('rxn-qcount',`Question ${rxnIdx+1} of ${rxnQ.length}`);
+  document.getElementById('rxn-progress').style.width=`${(rxnIdx/rxnQ.length)*100}%`;
+  document.getElementById('rxn-cat').textContent=rxnCurrent.category;
+  let scene='';
+  rxnCurrent.reactants.forEach((r,i)=>{ if(i>0) scene+=`<span class="plus">+</span>`; scene+=`<span class="reagent">${escH(r)}</span>`; });
+  rxnCurrent.conditions.forEach(c=>{ scene+=`<span class="reagent condition">${escH(c)}</span>`; });
+  scene+=`<span class="arrow">→</span><span style="color:var(--muted2);font-size:1.4rem">?</span>`;
+  document.getElementById('rxn-scene').innerHTML=scene;
+  document.getElementById('rxn-question').textContent=rxnCurrent.question;
+  document.getElementById('rxn-feedback').className='feedback-box';
+  document.getElementById('rxn-next').style.display='none';
+  document.getElementById('rxn-ask-ai').style.display='none';
+  document.getElementById('rxn-options').innerHTML=shuffle([...rxnCurrent.options]).map(o=>`<button class="rxn-opt" onclick="checkRxn('${escA(o)}')">${escH(o)}</button>`).join('');
+}
+function checkRxn(chosen){
+  const q=rxnCurrent, correct=chosen===q.answer;
+  document.querySelectorAll('.rxn-opt').forEach(b=>{ b.disabled=true; if(b.textContent.trim()===q.answer) b.classList.add('correct'); else if(b.textContent.trim()===chosen&&!correct) b.classList.add('wrong'); });
+  const xp=rxnDiff==='easy'?15:rxnDiff==='medium'?25:40;
+  const fb=document.getElementById('rxn-feedback');
+  if(correct){ fb.className='feedback-box correct-fb show'; fb.innerHTML=`✅ <strong>Correct! +${xp} XP</strong><br>${q.explain}`; addXP(xp,event); rxnScore+=xp; }
+  else{ fb.className='feedback-box wrong-fb show'; fb.innerHTML=`❌ Answer: <strong>${escH(q.answer)}</strong> — ${q.explain}`; breakStreak(); }
+  recordQ(q.topic, correct);
+  document.getElementById('rxn-next').style.display='inline-flex';
+  document.getElementById('rxn-ask-ai').style.display='inline-flex';
+}
+function nextRxnQuestion(){ rxnIdx++; if(rxnIdx>=rxnQ.length) return showRxnResults(); renderRxnQ(); }
+function showRxnResults(){
+  document.getElementById('rxn-game').style.display='none';
+  const r=document.getElementById('rxn-results'); r.style.display='block';
+  const mx=rxnQ.length*(rxnDiff==='easy'?15:rxnDiff==='medium'?25:40), pct=Math.round(rxnScore/mx*100);
+  r.innerHTML=`<div style="font-size:2.5rem">⚗️</div><h2 style="margin:8px 0">Reactions Complete!</h2><div class="big-score">${rxnScore} XP</div><div class="grade">${pct}% — ${grade(pct)}</div><button class="btn btn-primary" onclick="startRxnGame()">Play Again</button>`;
+}
+
+// ════════════════════════════════
+// GAME 3 — MEMORY
+// ════════════════════════════════
+const ELEMENTS=[
+  {symbol:"H",name:"Hydrogen",number:1,cat:"Nonmetal",color:"#60a5fa"},
+  {symbol:"He",name:"Helium",number:2,cat:"Noble Gas",color:"#a78bfa"},
+  {symbol:"Li",name:"Lithium",number:3,cat:"Alkali Metal",color:"#f472b6"},
+  {symbol:"C",name:"Carbon",number:6,cat:"Nonmetal",color:"#60a5fa"},
+  {symbol:"N",name:"Nitrogen",number:7,cat:"Nonmetal",color:"#34d399"},
+  {symbol:"O",name:"Oxygen",number:8,cat:"Nonmetal",color:"#f87171"},
+  {symbol:"F",name:"Fluorine",number:9,cat:"Halogen",color:"#34d399"},
+  {symbol:"Na",name:"Sodium",number:11,cat:"Alkali Metal",color:"#f472b6"},
+  {symbol:"Mg",name:"Magnesium",number:12,cat:"Alkaline",color:"#fb923c"},
+  {symbol:"Al",name:"Aluminium",number:13,cat:"Metal",color:"#94a3b8"},
+  {symbol:"Si",name:"Silicon",number:14,cat:"Metalloid",color:"#fbbf24"},
+  {symbol:"S",name:"Sulfur",number:16,cat:"Nonmetal",color:"#facc15"},
+  {symbol:"Cl",name:"Chlorine",number:17,cat:"Halogen",color:"#34d399"},
+  {symbol:"Ar",name:"Argon",number:18,cat:"Noble Gas",color:"#a78bfa"},
+  {symbol:"K",name:"Potassium",number:19,cat:"Alkali Metal",color:"#f472b6"},
+  {symbol:"Ca",name:"Calcium",number:20,cat:"Alkaline",color:"#fb923c"},
+  {symbol:"Fe",name:"Iron",number:26,cat:"Trans. Metal",color:"#94a3b8"},
+  {symbol:"Cu",name:"Copper",number:29,cat:"Trans. Metal",color:"#fb923c"},
+  {symbol:"Zn",name:"Zinc",number:30,cat:"Trans. Metal",color:"#94a3b8"},
+  {symbol:"Br",name:"Bromine",number:35,cat:"Halogen",color:"#34d399"},
+  {symbol:"Ag",name:"Silver",number:47,cat:"Trans. Metal",color:"#e2e8f0"},
+  {symbol:"I",name:"Iodine",number:53,cat:"Halogen",color:"#c084fc"},
+  {symbol:"Au",name:"Gold",number:79,cat:"Trans. Metal",color:"#fbbf24"},
+  {symbol:"Hg",name:"Mercury",number:80,cat:"Trans. Metal",color:"#94a3b8"},
+];
+let memCols=4,memPairs,memFlipped=[],memMatched=0,memMoves=0,memTimer,memSecs=0,memLock=false;
+function setMemDiff(c,btn){ memCols=c; document.querySelectorAll('#mem-diff .diff-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); initMemGame(); }
+function initMemGame(){
+  clearInterval(memTimer); memFlipped=[];memMatched=0;memMoves=0;memSecs=0;memLock=false;
+  memPairs=(memCols*4)/2;
+  const pool=shuffle([...ELEMENTS]).slice(0,memPairs);
+  let cards=[];
+  pool.forEach(el=>{ cards.push({id:el.symbol+'_s',pairId:el.symbol,type:'symbol',el}); cards.push({id:el.symbol+'_n',pairId:el.symbol,type:'name',el}); });
+  cards=shuffle(cards);
+  const grid=document.getElementById('mem-grid');
+  grid.style.gridTemplateColumns=`repeat(${memCols},1fr)`;
+  grid.innerHTML=cards.map((c,i)=>{
+    const cs=`background:${c.el.color}22;color:${c.el.color};border:1px solid ${c.el.color}44`;
+    const back=c.type==='symbol'
+      ?`<div class="card-number">${c.el.number}</div><div class="card-symbol" style="color:${c.el.color}">${c.el.symbol}</div><span class="card-category" style="${cs}">${c.el.cat}</span>`
+      :`<div class="card-name" style="font-size:.78rem;color:${c.el.color};font-weight:700;text-align:center;padding:4px">${c.el.name}</div>`;
+    return `<div class="memory-card" id="mc-${i}" data-idx="${i}" data-pair="${c.pairId}" onclick="flipCard(${i})"><div class="card-inner"><div class="card-front">⬡</div><div class="card-back">${back}</div></div></div>`;
+  }).join('');
+  setText('mem-moves','0'); setText('mem-pairs',`0/${memPairs}`); setText('mem-time','0s');
+  document.getElementById('mem-complete').style.display='none';
+  memTimer=setInterval(()=>{ memSecs++; setText('mem-time',memSecs+'s'); },1000);
+}
+function flipCard(idx){
+  if(memLock) return;
+  const card=document.getElementById('mc-'+idx);
+  if(!card||card.classList.contains('flipped')||card.classList.contains('matched')) return;
+  card.classList.add('flipped'); memFlipped.push(idx);
+  if(memFlipped.length===2){
+    memMoves++; setText('mem-moves',memMoves); memLock=true;
+    const [a,b]=memFlipped, ca=document.getElementById('mc-'+a), cb=document.getElementById('mc-'+b);
+    if(ca.dataset.pair===cb.dataset.pair){
+      ca.classList.add('matched'); cb.classList.add('matched');
+      memMatched++; setText('mem-pairs',`${memMatched}/${memPairs}`);
+      memFlipped=[]; memLock=false;
+      addXP(20,{clientX:window.innerWidth/2,clientY:window.innerHeight/2});
+      recordQ('Periodic Table',true);
+      if(memMatched===memPairs) setTimeout(showMemComplete,400);
+    } else {
+      setTimeout(()=>{ ca.classList.remove('flipped'); cb.classList.remove('flipped'); memFlipped=[]; memLock=false; },900);
+    }
+  }
+}
+function showMemComplete(){
+  clearInterval(memTimer);
+  const bonus=Math.max(0,300-memMoves*5-memSecs);
+  addXP(bonus,{clientX:window.innerWidth/2,clientY:window.innerHeight/2});
+  const res=document.getElementById('mem-complete'); res.style.display='block';
+  res.innerHTML=`<div style="font-size:2.5rem">🔬</div><h2 style="margin:8px 0">All Pairs Found!</h2><div class="big-score">+${memPairs*20+bonus} XP</div><div class="grade">⏱ ${memSecs}s · 🃏 ${memMoves} moves · Speed bonus: +${bonus}</div><button class="btn btn-primary" style="margin-top:14px" onclick="initMemGame()">Play Again</button>`;
+}
+
+// ════════════════════════════════
+// GAME 4 — EQUATION BALANCER
+// ════════════════════════════════
+const EQS = {
+  easy:[
+    {label:"Hydrogen combustion",parts:["__H₂","+ __O₂","→ __H₂O"],answer:[2,1,2],hint:"H: 4 on each side; O: 2 on each side"},
+    {label:"Sodium + water",parts:["__Na","+ __H₂O","→ __NaOH","+ __H₂"],answer:[2,2,2,1],hint:"Na:2, H:5→5, O:2"},
+    {label:"Magnesium combustion",parts:["__Mg","+ __O₂","→ __MgO"],answer:[2,1,2],hint:"Mg:2, O:2"},
+    {label:"Iron + oxygen → rust",parts:["__Fe","+ __O₂","→ __Fe₂O₃"],answer:[4,3,2],hint:"Fe:4, O:6"},
+    {label:"Calcium carbonate decomp.",parts:["__CaCO₃","→ __CaO","+ __CO₂"],answer:[1,1,1],hint:"Already balanced!"},
+    {label:"Photosynthesis",parts:["__CO₂","+ __H₂O","→ __C₆H₁₂O₆","+ __O₂"],answer:[6,6,1,6],hint:"C:6, H:12, O:18"},
+  ],
+  medium:[
+    {label:"Ethane combustion",parts:["__C₂H₆","+ __O₂","→ __CO₂","+ __H₂O"],answer:[2,7,4,6],hint:"C:4, H:12, O:14"},
+    {label:"Aluminium + HCl",parts:["__Al","+ __HCl","→ __AlCl₃","+ __H₂"],answer:[2,6,2,3],hint:"Al:2, Cl:6, H:6"},
+    {label:"KMnO₄ + HCl",parts:["__KMnO₄","+ __HCl","→ __KCl","+ __MnCl₂","+ __Cl₂","+ __H₂O"],answer:[2,16,2,2,5,8],hint:"Mn reduced Cl⁻→Cl₂"},
+    {label:"Fe₂O₃ + CO (reduction)",parts:["__Fe₂O₃","+ __CO","→ __Fe","+ __CO₂"],answer:[1,3,2,3],hint:"Fe:2, O:6, C:3"},
+    {label:"Ammonia synthesis",parts:["__N₂","+ __H₂","→ __NH₃"],answer:[1,3,2],hint:"N:2, H:6"},
+    {label:"Glucose fermentation",parts:["__C₆H₁₂O₆","→ __C₂H₅OH","+ __CO₂"],answer:[1,2,2],hint:"C:6, H:12, O:6"},
+  ],
+  hard:[
+    {label:"Dichromate oxidation",parts:["__K₂Cr₂O₇","+ __HCl","→ __KCl","+ __CrCl₃","+ __Cl₂","+ __H₂O"],answer:[1,14,2,2,3,7],hint:"Use oxidation numbers"},
+    {label:"Permanganate in acid",parts:["__KMnO₄","+ __FeSO₄","+ __H₂SO₄","→ __K₂SO₄","+ __MnSO₄","+ __Fe₂(SO₄)₃","+ __H₂O"],answer:[2,10,8,1,2,5,8],hint:"Mn(VII)→Mn(II), Fe(II)→Fe(III)"},
+    {label:"Copper + nitric acid (conc.)",parts:["__Cu","+ __HNO₃","→ __Cu(NO₃)₂","+ __NO₂","+ __H₂O"],answer:[1,4,1,2,2],hint:"Cu→Cu²⁺, N(V)→N(IV)"},
+    {label:"P₄ combustion",parts:["__P₄","+ __O₂","→ __P₂O₅"],answer:[1,5,2],hint:"P:4, O:10"},
+  ]
+};
+
+let eqDiff='easy',eqIdx=0,eqScore=0,eqQ=[],eqCurrent=null;
+function setEqDiff(d,btn){ eqDiff=d; document.querySelectorAll('#eq-diff .diff-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); startEqGame(); }
+function startEqGame(){ eqIdx=0;eqScore=0; eqQ=shuffle([...EQS[eqDiff]]).slice(0,6); document.getElementById('eq-results').style.display='none'; renderEqQ(); }
+function renderEqQ(){
+  eqCurrent=eqQ[eqIdx];
+  setText('eq-qcount',`Equation ${eqIdx+1} of ${eqQ.length}`);
+  document.getElementById('eq-progress').style.width=`${(eqIdx/eqQ.length)*100}%`;
+  document.getElementById('eq-feedback').className='feedback-box';
+  document.getElementById('eq-next').style.display='none';
+  document.getElementById('eq-result').style.display='none';
+  document.getElementById('eq-display').innerHTML=eqCurrent.parts.map((p,i)=>
+    `<input class="coeff-input" id="coeff-${i}" type="number" min="1" max="20" value="1" title="Coefficient"> ${escH(p.replace('__',''))}`
+  ).join(' ');
+}
+function checkBalance(){
+  const ans=eqCurrent.answer;
+  const vals=ans.map((_,i)=>parseInt(document.getElementById('coeff-'+i)?.value)||1);
+  const correct=ans.every((v,i)=>vals[i]===v);
+  const res=document.getElementById('eq-result'); res.style.display='inline-flex';
+  const xp=eqDiff==='easy'?15:eqDiff==='medium'?25:40;
+  const fb=document.getElementById('eq-feedback');
+  if(correct){
+    res.className='balance-result ok'; res.textContent='✅ Perfectly Balanced!';
+    fb.className='feedback-box correct-fb show'; fb.innerHTML=`✅ <strong>Correct! +${xp} XP</strong> — ${eqCurrent.label}`;
+    addXP(xp,event); eqScore+=xp; recordQ('Equation Balancing',true);
+  } else {
+    res.className='balance-result fail'; res.textContent='❌ Not balanced yet';
+    fb.className='feedback-box wrong-fb show'; fb.innerHTML=`Try again — hint: ${eqCurrent.hint}`;
+    recordQ('Equation Balancing',false);
+  }
+  document.getElementById('eq-next').style.display='inline-flex';
+}
+function showBalanceHint(){
+  const fb=document.getElementById('eq-feedback');
+  fb.className='feedback-box correct-fb show'; fb.innerHTML=`💡 Hint: ${eqCurrent.hint}`;
+}
+function nextEqQuestion(){ eqIdx++; if(eqIdx>=eqQ.length) return showEqResults(); renderEqQ(); }
+function showEqResults(){
+  document.getElementById('eq-results').style.display='block';
+  const mx=eqQ.length*(eqDiff==='easy'?15:eqDiff==='medium'?25:40), pct=Math.round(eqScore/mx*100);
+  document.getElementById('eq-results').innerHTML=`<div style="font-size:2.5rem">⚖️</div><h2 style="margin:8px 0">Balancing Complete!</h2><div class="big-score">${eqScore} XP</div><div class="grade">${pct}% — ${grade(pct)}</div><button class="btn btn-primary" onclick="startEqGame()">Play Again</button>`;
+}
+
+// ════════════════════════════════
+// AI TUTOR
+// ════════════════════════════════
+let chatHistory=[];
+function sendQuick(q){ document.getElementById('chat-input').value=q; sendChat(); }
+
+function askAIAboutCurrent(game){
+  let q='';
+  if(game==='fg'&&fgCurrent) q=`Explain the ${fgCurrent.answer} functional group in detail, including its structure, properties, and examples.`;
+  if(game==='rxn'&&rxnCurrent) q=`Explain this reaction in detail: ${rxnCurrent.reactants.join(' + ')} → ${rxnCurrent.answer}. Include mechanism and applications.`;
+  if(game==='engg'&&enggCurrent) q=`I'm a 1st year engineering student. Explain in detail: "${enggCurrent.q}" — The answer is "${enggCurrent.answer}". Please elaborate with mechanism, real-world examples, and exam tips.`;
+  if(q){ document.getElementById('chat-input').value=q; switchTab('ai'); setTimeout(sendChat,100); }
+}
+
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim(); if(!msg) return;
+  input.value='';
+  appendMsg('user',msg);
+  chatHistory.push({role:'user',content:msg});
+  appendTyping();
+  try {
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`You are ChemBot, an expert AI chemistry tutor built into ChemLab Pro, an educational chemistry platform for 1st year engineering students. 
+You help students understand chemistry concepts clearly and engagingly. 
+Core topics: Water Technology, Fuels & Combustion, Corrosion & Corrosion Control, Chemistry of Polymers, Noble Carbon Compounds (fullerenes, CNTs, graphene), plus general organic/inorganic chemistry.
+- Keep responses concise but thorough (150-250 words)
+- Use chemical formulas and equations where helpful (text-based)
+- Include real-world engineering examples
+- End with an encouraging tip or exam hint
+- Format with line breaks for readability`,
+        messages:chatHistory
+      })
+    });
+    const data=await resp.json();
+    removeTyping();
+    const text=data.content?.map(c=>c.text||'').join('')||'Sorry, I couldn\'t respond right now.';
+    chatHistory.push({role:'assistant',content:text});
+    appendMsg('ai',text);
+  } catch(e){
+    removeTyping();
+    appendMsg('ai','⚠️ Connection issue. Please check your network and try again.');
+  }
+}
+
+function appendMsg(role,text){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div'); div.className='msg '+role;
+  if(role==='ai') div.innerHTML=`<div class="ai-label">⚗️ ChemBot AI</div>${escH(text).replace(/\n/g,'<br>')}`;
+  else div.textContent=text;
+  msgs.appendChild(div); msgs.scrollTop=msgs.scrollHeight;
+}
+function appendTyping(){
+  const msgs=document.getElementById('chat-messages');
+  const d=document.createElement('div'); d.className='msg ai'; d.id='typing-indicator';
+  d.innerHTML=`<div class="ai-label">⚗️ ChemBot AI</div><div class="msg-typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTyping(){ document.getElementById('typing-indicator')?.remove(); }
+
+// ════════════════════════════════
+// ANALYTICS
+// ════════════════════════════════
+function renderAnalytics(){
+  const acc=STATE.totalQ?Math.round(STATE.totalCorrect/STATE.totalQ*100):0;
+  const topics=Object.entries(STATE.topicStats);
+  const grid=document.getElementById('analytics-grid');
+  grid.innerHTML=`
+    <div class="anal-card"><div class="anal-card-title">Total XP</div><div class="anal-big" style="color:var(--accent)">${STATE.xp}</div><div class="anal-sub">Experience points</div></div>
+    <div class="anal-card"><div class="anal-card-title">Accuracy</div><div class="anal-big" style="color:var(--accent4)">${acc}%</div><div class="anal-sub">${STATE.totalCorrect}/${STATE.totalQ} correct</div></div>
+    <div class="anal-card"><div class="anal-card-title">Best Streak</div><div class="anal-big" style="color:var(--accent2)">${STATE.best}🔥</div><div class="anal-sub">Consecutive correct</div></div>
+  `;
+  // Topic bars
+  const colors=['#00e5ff','#7cfc00','#ff6b35','#c084fc','#f59e0b','#f472b6','#34d399'];
+  const bars=document.getElementById('topic-bars');
+  if(topics.length===0){ bars.innerHTML='<div style="color:var(--muted2);font-size:.8rem">Complete questions to see topic breakdown</div>'; }
+  else {
+    bars.innerHTML=topics.map(([topic,stat],i)=>{
+      const pct=Math.round(stat.correct/stat.total*100);
+      return `<div class="bar-row"><div class="bar-label">${topic.split(' ')[0]}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${colors[i%colors.length]}"></div></div><div class="bar-pct">${pct}%</div></div>`;
+    }).join('');
+  }
+  // Weak/strong tags
+  const wt=document.getElementById('weak-tags');
+  if(topics.length===0){ wt.innerHTML='<div style="color:var(--muted2);font-size:.8rem">No data yet</div>'; }
+  else {
+    wt.innerHTML=topics.map(([topic,stat])=>{
+      const pct=Math.round(stat.correct/stat.total*100);
+      const cls=pct>=70?'strong':'weak';
+      return `<span class="weak-tag ${cls}">${cls==='strong'?'✅':'⚠️'} ${topic} (${pct}%)</span>`;
+    }).join('');
+  }
+  // AI insight
+  const insight=document.getElementById('ai-insight');
+  const weakTopics=topics.filter(([,s])=>s.total>=2&&s.correct/s.total<0.6).map(([t])=>t);
+  const strongTopics=topics.filter(([,s])=>s.total>=2&&s.correct/s.total>=0.8).map(([t])=>t);
+  if(STATE.totalQ<5){ insight.innerHTML='💡 <strong>AI Insight:</strong> Complete at least 5 questions to unlock personalised recommendations.'; }
+  else if(weakTopics.length>0){ insight.innerHTML=`💡 <strong>AI Insight:</strong> You're struggling with <strong>${weakTopics.join(', ')}</strong>. Focus on these topics — try the Medium difficulty and use the 🤖 AI Tutor to ask for detailed explanations!`; }
+  else if(strongTopics.length>0){ insight.innerHTML=`🌟 <strong>AI Insight:</strong> Excellent mastery in <strong>${strongTopics.join(', ')}</strong>! You're ready to move to Hard difficulty. Challenge yourself with Reaction Predictor and Equation Balancer.`; }
+  else { insight.innerHTML=`💡 <strong>AI Insight:</strong> You're showing balanced performance across all topics. Keep pushing — try Hard mode to stretch your understanding!`; }
+}
+
+// ════════════════════════════════
+// LEADERBOARD
+// ════════════════════════════════
+function renderLeaderboard(){
+  const players=[
+    {name:"Dr. Ramanujan",xp:4850,streak:23,avatar:"👨‍🔬"},
+    {name:"Priya Sharma",xp:4200,streak:18,avatar:"👩‍🎓"},
+    {name:"Arjun Patel",xp:3750,streak:15,avatar:"🧑‍🔬"},
+    {name:"You",xp:STATE.xp,streak:STATE.best,avatar:"⭐",you:true},
+    {name:"Kavya Nair",xp:2900,streak:11,avatar:"👩‍🔬"},
+    {name:"Rohit Gupta",xp:2100,streak:8,avatar:"👨‍🎓"},
+    {name:"Sneha Iyer",xp:1650,streak:6,avatar:"🧑‍🎓"},
+    {name:"Aditya K.",xp:1200,streak:4,avatar:"👦"},
+  ].sort((a,b)=>b.xp-a.xp);
+
+  const rankClass=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
+  const rankEmoji=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1);
+
+  document.getElementById('lb-table').innerHTML=`
+    <thead><tr><td style="color:var(--muted2);font-size:.72rem;font-family:'Space Mono',monospace;padding:8px 16px">RANK</td><td style="color:var(--muted2);font-size:.72rem;font-family:'Space Mono',monospace">PLAYER</td><td style="color:var(--muted2);font-size:.72rem;font-family:'Space Mono',monospace">XP</td><td style="color:var(--muted2);font-size:.72rem;font-family:'Space Mono',monospace">BEST</td></tr></thead>
+    <tbody>${players.map((p,i)=>`<tr class="lb-row ${p.you?'you':''}"><td><span class="lb-rank ${rankClass(i)}">${rankEmoji(i)}</span></td><td><span class="lb-avatar" style="background:rgba(255,255,255,.05)">${p.avatar}</span>${p.you?'<strong>'+p.name+'</strong>':p.name}</td><td class="lb-xp">${p.xp.toLocaleString()}</td><td class="lb-streak">🔥${p.streak}</td></tr>`).join('')}</tbody>
+  `;
+}
+
+// ════════════════════════════════
+// ACHIEVEMENTS
+// ════════════════════════════════
+const ACHLIST=[
+  {id:'first_correct',icon:'⭐',name:'First Star',desc:'Answer your first question correctly',xpReq:0,qReq:1,cReq:1},
+  {id:'streak5',icon:'🔥',name:'On Fire',desc:'Reach a 5-question streak',streakReq:5},
+  {id:'streak10',icon:'🌟',name:'Unstoppable',desc:'Reach a 10-question streak',streakReq:10},
+  {id:'xp100',icon:'💎',name:'XP Collector',desc:'Earn 100 XP total',xpReq:100},
+  {id:'xp500',icon:'🏆',name:'Chemistry Champion',desc:'Earn 500 XP total',xpReq:500},
+  {id:'xp1000',icon:'👑',name:'Grand Master',desc:'Earn 1000 XP total',xpReq:1000},
+  {id:'all_topics',icon:'🧬',name:'Well Rounded',desc:'Answer questions in 4+ topics',topicsReq:4},
+  {id:'perfect_fg',icon:'🎯',name:'Perfect Matcher',desc:'Complete Functional Groups with 100%',perfectFG:true},
+  {id:'speed_mem',icon:'⚡',name:'Speed Chemist',desc:'Complete Memory game in under 60s',speedMem:true},
+  {id:'daily3',icon:'📅',name:'Daily Habit',desc:'Complete 3 daily challenges',dailyReq:3},
+  {id:'hard_mode',icon:'💪',name:'Hard Mode',desc:'Answer 5 Hard questions correctly',hardReq:5},
+  {id:'ai_learner',icon:'🤖',name:'AI Learner',desc:'Use the AI Tutor 3 times',aiReq:3},
+  {id:'water_master',icon:'💧',name:'Water Master',desc:'Score 80%+ in Water Technology',xpReq:200},
+  {id:'fuel_expert',icon:'🔥',name:'Fuel Expert',desc:'Complete Fuels & Combustion topic',xpReq:300},
+  {id:'corrosion_fighter',icon:'🦠',name:'Corrosion Fighter',desc:'Earn 400+ XP total',xpReq:400},
+  {id:'polymer_pro',icon:'🧵',name:'Polymer Pro',desc:'Answer in 6+ different topics',topicsReq:6},
+  {id:'carbon_scientist',icon:'💎',name:'Carbon Scientist',desc:'Earn 600+ XP total',xpReq:600},
+  {id:'engg_champion',icon:'🎓',name:'Engg Champion',desc:'Earn 800+ XP total',xpReq:800},
+];
+
+function checkAchievements(){
+  ACHLIST.forEach(a=>{
+    if(STATE.achievements[a.id]) return;
+    let unlock=false;
+    if(a.xpReq!==undefined && STATE.xp>=a.xpReq && a.qReq && STATE.totalCorrect>=a.qReq) unlock=true;
+    if(a.xpReq>=100 && STATE.xp>=a.xpReq) unlock=true;
+    if(a.streakReq && STATE.best>=a.streakReq) unlock=true;
+    if(a.topicsReq && Object.keys(STATE.topicStats).length>=a.topicsReq) unlock=true;
+    if(unlock){ STATE.achievements[a.id]=true; showToast(`🎖️ Achievement Unlocked: <strong>${a.name}</strong>!`,'achievement'); burst({clientX:window.innerWidth/2,clientY:60}); }
+  });
+}
+
+function renderAchievements(){
+  document.getElementById('ach-grid').innerHTML=ACHLIST.map(a=>{
+    const unlocked=!!STATE.achievements[a.id];
+    return `<div class="ach-card ${unlocked?'unlocked':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+      <span class="ach-badge ${unlocked?'unlocked':'locked'}">${unlocked?'✅ UNLOCKED':'🔒 LOCKED'}</span>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+// DAILY CHALLENGE
+// ════════════════════════════════
+const DAILY_POOL=[
+  {type:'mcq',q:"What is the IUPAC name for CH₃CH₂CH₂OH?",answer:"Propan-1-ol",options:["Propanol","Propan-1-ol","1-propanol","Propane-1-ol"],explain:"IUPAC: propan-1-ol. The OH is on carbon 1 of the 3-carbon chain."},
+  {type:'mcq',q:"Which reagent converts a ketone to a secondary alcohol?",answer:"NaBH₄",options:["NaBH₄","KMnO₄","PCl₅","HNO₃"],explain:"NaBH₄ reduces ketones to secondary alcohols by delivering H⁻ to the carbonyl."},
+  {type:'mcq',q:"The hybridisation of carbon in ethyne is?",answer:"sp",options:["sp","sp2","sp3","sp3d"],explain:"Ethyne has C≡C triple bond. Carbon is sp hybridised with one sigma + two pi bonds."},
+  {type:'mcq',q:"Which type of reaction does benzene typically undergo?",answer:"Electrophilic Aromatic Substitution",options:["Electrophilic Aromatic Substitution","Nucleophilic Addition","Radical Addition","Elimination"],explain:"Benzene's aromatic pi system attacks electrophiles; substitution preserves aromaticity."},
+  {type:'mcq',q:"[💧 Water] Which salts cause TEMPORARY hardness?",answer:"Bicarbonates of Ca and Mg",options:["Bicarbonates of Ca and Mg","Chlorides of Ca","Sulphates of Mg","Nitrates of Na"],explain:"Temporary hardness = Ca(HCO3)2 and Mg(HCO3)2. Removed by boiling — precipitates as CaCO3."},
+  {type:'mcq',q:"[💧 Water] BOD stands for?",answer:"Biochemical Oxygen Demand",options:["Biochemical Oxygen Demand","Biological Oxygen Deficit","Base Oxygen Dissolve","Bacterial Organic Demand"],explain:"BOD = oxygen needed by aerobic organisms to decompose organic matter. High BOD = high organic pollution."},
+  {type:'mcq',q:"[💧 Water] The EDTA method is used to determine?",answer:"Total hardness of water",options:["Total hardness of water","BOD value","Turbidity","Chloride content"],explain:"EDTA forms stable complexes with Ca2+ and Mg2+ ions for complexometric titration of hardness."},
+  {type:'mcq',q:"[🔥 Fuels] Main component of LPG is?",answer:"Propane and Butane",options:["Propane and Butane","Methane only","Hydrogen","Ethylene"],explain:"LPG = liquefied petroleum gas: mainly propane C3H8 and butane C4H10. Used for domestic cooking."},
+  {type:'mcq',q:"[🔥 Fuels] Octane number measures?",answer:"Antiknocking property of petrol",options:["Antiknocking property of petrol","Calorific value","Boiling point","Viscosity"],explain:"Octane number = resistance to knocking. Isooctane = 100, n-heptane = 0. Higher = better engine fuel."},
+  {type:'mcq',q:"[🔥 Fuels] Water gas is a mixture of?",answer:"CO and H2",options:["CO and H2","CO and N2","CH4 and H2","CO2 and H2O"],explain:"Water gas: C + H2O(steam) = CO + H2. Also called synthesis gas. High calorific value fuel."},
+  {type:'mcq',q:"[🦠 Corrosion] Galvanising is coating iron with?",answer:"Zinc",options:["Zinc","Copper","Tin","Lead"],explain:"Zinc coating protects iron as barrier AND sacrificially since Zn is more anodic than Fe in EMF series."},
+  {type:'mcq',q:"[🦠 Corrosion] In corrosion, the anodic reaction is?",answer:"Oxidation — metal loses electrons",options:["Oxidation — metal loses electrons","Reduction","Precipitation","Neutralisation"],explain:"Anode: M = Mn+ + ne- (metal dissolves). Cathode: O2 + H2O + e- = OH- (reduction). Metal corrodes at anode."},
+  {type:'mcq',q:"[🧵 Polymers] Natural rubber is a polymer of?",answer:"Isoprene (2-methylbuta-1,3-diene)",options:["Isoprene (2-methylbuta-1,3-diene)","Styrene","Butadiene","Chloroprene"],explain:"Natural rubber = cis-polyisoprene from Hevea brasiliensis. Vulcanisation cross-links chains for better properties."},
+  {type:'mcq',q:"[🧵 Polymers] Bakelite is an example of?",answer:"Thermosetting polymer",options:["Thermosetting polymer","Thermoplastic","Elastomer","Biodegradable polymer"],explain:"Phenol-formaldehyde (Bakelite) = cross-linked 3D network. Cannot be remelted once set. First synthetic plastic."},
+  {type:'mcq',q:"[💎 Carbon] In diamond, carbon is bonded to?",answer:"4 carbons in sp3 hybridisation",options:["4 carbons in sp3 hybridisation","3 carbons sp2","2 carbons sp","6 carbons"],explain:"Diamond: 3D covalent sp3 network. All 4 valence electrons in sigma bonds — makes it the hardest natural material."},
+  {type:'mcq',q:"[💎 Carbon] C60 Buckminster Fullerene has?",answer:"12 pentagons and 20 hexagons",options:["12 pentagons and 20 hexagons","20 pentagons only","All hexagons","6 pentagons and 6 hexagons"],explain:"C60 has 12 pentagons + 20 hexagons like a football. Nobel Prize 1996 (Kroto, Curl, Smalley)."},
+  {type:'mcq',q:"[💎 Carbon] Carbon nanotubes are structurally?",answer:"Rolled-up sheets of graphene",options:["Rolled-up sheets of graphene","Hollow diamond crystals","C60 molecules","Carbon fibres"],explain:"CNTs are graphene cylinders: SWCNT (single wall) or MWCNT (multiple walls). Exceptional strength and conductivity."},
+];
+
+let dailyDone=false, dailyStreak=0;
+function renderDaily(){
+  updateDailyTimer();
+  const today=new Date().toDateString();
+  const idx=Math.abs([...today].reduce((a,c)=>a+c.charCodeAt(0),0))%DAILY_POOL.length;
+  const q=DAILY_POOL[idx];
+  setText('daily-streak-disp',`🗓️ Daily Streak: ${dailyStreak}`);
+  const div=document.getElementById('daily-content');
+  if(dailyDone){
+    div.innerHTML=`<div class="feedback-box correct-fb show" style="display:block"><strong>✅ Today's challenge complete!</strong><br>Come back tomorrow for a new question and to extend your streak!</div>`;
+    return;
+  }
+  div.innerHTML=`
+    <div class="question-box"><div class="fg-structure" style="font-size:1rem">${escH(q.q)}</div></div>
+    <div class="options-grid">${shuffle([...q.options]).map(o=>`<button class="option-btn" onclick="checkDaily('${escA(o)}','${escA(q.answer)}','${escA(q.explain)}')">${escH(o)}</button>`).join('')}</div>
+    <div class="feedback-box" id="daily-fb"></div>
+  `;
+}
+function checkDaily(chosen,answer,explain){
+  document.querySelectorAll('#daily-content .option-btn').forEach(b=>{ b.disabled=true; if(b.textContent===answer) b.classList.add('correct'); else if(b.textContent===chosen&&chosen!==answer) b.classList.add('wrong'); });
+  const correct=chosen===answer;
+  const fb=document.getElementById('daily-fb');
+  if(correct){ fb.className='feedback-box correct-fb show'; fb.innerHTML=`✅ <strong>Correct! +50 XP Bonus!</strong><br>${explain}`; addXP(50,event); dailyStreak++; }
+  else { fb.className='feedback-box wrong-fb show'; fb.innerHTML=`❌ Answer: <strong>${answer}</strong> — ${explain}`; dailyStreak=0; }
+  dailyDone=true; document.getElementById('daily-notif').style.display='none';
+  setText('daily-streak-disp',`🗓️ Daily Streak: ${dailyStreak}`);
+}
+function updateDailyTimer(){
+  const now=new Date(), midnight=new Date(now); midnight.setHours(24,0,0,0);
+  const diff=midnight-now, h=Math.floor(diff/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000);
+  setText('daily-timer',`⏰ Resets in: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`);
+}
+setInterval(updateDailyTimer,1000);
+
+// ════════════════════════════════
+// ENGINEERING CHEMISTRY — 1ST YEAR
+// ════════════════════════════════
+const ENGG_QS = {
+  water:{
+    label:"💧 Water Technology",
+    easy:[
+      {q:"What is the unit of hardness of water?",answer:"ppm (parts per million)",options:["ppm (parts per million)","mg/L only","Moles/litre","Degrees Celsius"],explain:"Hardness is expressed in ppm (mg of CaCO₃ equivalent per litre of water).",hint:"Think CaCO₃ equivalents"},
+      {q:"Which salts cause TEMPORARY hardness in water?",answer:"Bicarbonates of Ca²⁺ and Mg²⁺",options:["Bicarbonates of Ca²⁺ and Mg²⁺","Chlorides of Ca²⁺","Sulphates of Ca²⁺","Nitrates of Mg²⁺"],explain:"Temporary hardness is due to dissolved Ca(HCO₃)₂ and Mg(HCO₃)₂ — removed by boiling.",hint:"Removed by simple boiling"},
+      {q:"Which salts cause PERMANENT hardness in water?",answer:"Chlorides and sulphates of Ca²⁺ and Mg²⁺",options:["Chlorides and sulphates of Ca²⁺ and Mg²⁺","Bicarbonates only","NaCl and KCl","Carbonates of Na"],explain:"Permanent hardness: CaCl₂, MgCl₂, CaSO₄, MgSO₄ — cannot be removed by boiling.",hint:"Not removed by boiling"},
+      {q:"What is the softening of water by lime-soda process?",answer:"Adding Ca(OH)₂ and Na₂CO₃ to precipitate hardness",options:["Adding Ca(OH)₂ and Na₂CO₃ to precipitate hardness","Boiling water","Filtering through sand","Adding alum"],explain:"Lime (Ca(OH)₂) removes temporary hardness; soda (Na₂CO₃) removes permanent hardness by precipitation.",hint:"Lime + soda ash"},
+      {q:"BOD stands for?",answer:"Biochemical Oxygen Demand",options:["Biochemical Oxygen Demand","Biological Oxygen Deficit","Base Oxygen Dissolve","Bacterial Organic Demand"],explain:"BOD measures the amount of dissolved oxygen needed by aerobic organisms to decompose organic matter.",hint:"A measure of water pollution"},
+      {q:"What does a high BOD value in water indicate?",answer:"High organic pollution",options:["High organic pollution","Pure water","High mineral content","Low bacterial activity"],explain:"High BOD = more organic matter being decomposed = more polluted water.",hint:"Higher = worse"},
+      {q:"The process of removing dissolved salts from seawater is called?",answer:"Desalination / Reverse Osmosis",options:["Desalination / Reverse Osmosis","Sedimentation","Coagulation","Chlorination"],explain:"Reverse osmosis forces water through a semi-permeable membrane, leaving salts behind.",hint:"Used in coastal areas for drinking water"},
+      {q:"Which chemical is used for disinfection of water in municipal supply?",answer:"Chlorine (Cl₂)",options:["Chlorine (Cl₂)","Ozone only","Alum","Lime"],explain:"Chlorine kills pathogens effectively and economically. Ozone is also used but more expensive.",hint:"Most common municipal disinfectant"},
+    ],
+    medium:[
+      {q:"What is the principle of ion-exchange method of water softening?",answer:"Exchange of Ca²⁺/Mg²⁺ ions with Na⁺ or H⁺ from resin",options:["Exchange of Ca²⁺/Mg²⁺ ions with Na⁺ or H⁺ from resin","Precipitation of ions","Boiling and filtering","Adding EDTA"],explain:"Zeolite/ion-exchange resins replace Ca²⁺ and Mg²⁺ with Na⁺ (cation exchanger) or H⁺ (demineraliser).",hint:"Resin-based process"},
+      {q:"What is scale formation in boilers?",answer:"Deposition of CaSO₄, CaCO₃, Mg(OH)₂ on boiler walls",options:["Deposition of CaSO₄, CaCO₃, Mg(OH)₂ on boiler walls","Rusting of boiler","Oil contamination","Algae growth"],explain:"Scale has low thermal conductivity, reduces efficiency, and can cause boiler explosions.",hint:"Causes overheating"},
+      {q:"What is priming in boilers?",answer:"Carry-over of water droplets with steam",options:["Carry-over of water droplets with steam","Formation of scale","Dissolved gas in steam","Foaming only"],explain:"Priming occurs when steam carries water droplets — caused by dissolved salts and rapid boiling.",hint:"Wet steam problem"},
+      {q:"The EDTA method is used to determine?",answer:"Total hardness of water",options:["Total hardness of water","BOD","Turbidity","Chloride content"],explain:"EDTA (ethylenediaminetetraacetic acid) forms stable complexes with Ca²⁺ and Mg²⁺ for titration.",hint:"Complexometric titration"},
+      {q:"What is caustic embrittlement in boilers?",answer:"Cracking of boiler steel due to concentrated NaOH",options:["Cracking of boiler steel due to concentrated NaOH","Scale formation","Priming","Foaming"],explain:"NaOH concentrates in crevices, attacks grain boundaries of steel causing stress corrosion cracking.",hint:"Alkali stress corrosion"},
+      {q:"Reverse osmosis works by applying pressure to overcome?",answer:"Osmotic pressure",options:["Osmotic pressure","Gravity","Surface tension","Van der Waals forces"],explain:"Natural osmosis moves water toward higher solute concentration; RO reverses this using external pressure.",hint:"Natural diffusion force"},
+    ],
+    hard:[
+      {q:"In Zeolite softening, the exhausted zeolite is regenerated using?",answer:"10% NaCl (brine) solution",options:["10% NaCl (brine) solution","Dilute HCl","Ca(OH)₂ solution","Distilled water"],explain:"Brine (NaCl) displaces the accumulated Ca²⁺/Mg²⁺ from the zeolite, restoring Na-form: Z-Ca + 2NaCl → Z-Na₂ + CaCl₂.",hint:"Regeneration with salt"},
+      {q:"What is the Langelier Saturation Index (LSI) used for?",answer:"Predicting whether water will scale or corrode pipes",options:["Predicting whether water will scale or corrode pipes","Measuring BOD","Determining hardness","Measuring turbidity"],explain:"LSI = pH(actual) – pH(saturation). Positive: scaling tendency. Negative: corrosive tendency.",hint:"Scale vs corrosion balance"},
+      {q:"In the cold lime-soda process, the sludge formed contains?",answer:"CaCO₃ and Mg(OH)₂",options:["CaCO₃ and Mg(OH)₂","NaCl and CaSO₄","MgCO₃ only","Ca(HCO₃)₂"],explain:"Ca²⁺ precipitates as CaCO₃; Mg²⁺ precipitates as Mg(OH)₂ with excess lime.",hint:"Precipitation products"},
+      {q:"COD (Chemical Oxygen Demand) differs from BOD because?",answer:"COD oxidises all organic matter chemically, not biologically",options:["COD oxidises all organic matter chemically, not biologically","COD uses bacteria","COD takes 5 days","COD measures inorganic content only"],explain:"COD uses K₂Cr₂O₇ to chemically oxidise all organics; faster than BOD but less specific to biodegradable matter.",hint:"Chemical vs biological oxidation"},
+    ]
+  },
+
+  fuels:{
+    label:"🔥 Fuels & Combustion",
+    easy:[
+      {q:"What is calorific value of a fuel?",answer:"Amount of heat produced by complete combustion of unit mass",options:["Amount of heat produced by complete combustion of unit mass","Weight of fuel burned","Temperature of flame","Volume of gas produced"],explain:"Calorific value (CV) in kJ/kg or kcal/kg — measures energy content of fuel.",hint:"Energy per unit mass"},
+      {q:"What is the difference between HCV and LCV?",answer:"HCV includes latent heat of steam; LCV does not",options:["HCV includes latent heat of steam; LCV does not","LCV is always higher","They are the same","HCV is for solids only"],explain:"Higher Calorific Value (HCV/GCV) assumes water condenses. Lower CV (LCV/NCV) assumes steam escapes.",hint:"Water vapour latent heat"},
+      {q:"Which of the following is a gaseous fuel?",answer:"Natural gas (methane)",options:["Natural gas (methane)","Coal","Coke","Wood"],explain:"Natural gas (mainly CH₄) is a gaseous fuel. Coal, coke, and wood are solid fuels.",hint:"Methane is the main component"},
+      {q:"What is the main component of LPG?",answer:"Propane and Butane",options:["Propane and Butane","Methane","Hydrogen","Acetylene"],explain:"LPG (Liquefied Petroleum Gas) is a mixture of propane (C₃H₈) and butane (C₄H₁₀).",hint:"Used in domestic cooking"},
+      {q:"What is octane number?",answer:"Measure of antiknocking property of petrol",options:["Measure of antiknocking property of petrol","Calorific value of fuel","Boiling point of petrol","Viscosity of fuel"],explain:"Octane number measures resistance to knocking. 2,2,4-trimethylpentane (isooctane) = 100.",hint:"Higher = better for engines"},
+      {q:"What is the process of converting coal to coke called?",answer:"Carbonisation (destructive distillation)",options:["Carbonisation (destructive distillation)","Combustion","Gasification","Cracking"],explain:"Carbonisation: coal heated in absence of air → coke (solid) + coal tar + coal gas.",hint:"Heating without oxygen"},
+      {q:"Producer gas is a mixture of?",answer:"CO and N₂",options:["CO and N₂","H₂ and CO","CH₄ and CO₂","N₂ and O₂"],explain:"Producer gas: C + air → CO + N₂ (approx. 30% CO, 60% N₂). Low calorific value fuel.",hint:"Passes air through burning coal"},
+      {q:"Water gas is a mixture of?",answer:"CO and H₂",options:["CO and H₂","CO and N₂","CH₄ and H₂","CO₂ and H₂O"],explain:"Water gas: C + H₂O(steam) → CO + H₂. Also called synthesis gas.",hint:"Passes steam through hot coke"},
+    ],
+    medium:[
+      {q:"What is cracking of petroleum?",answer:"Breaking heavy hydrocarbons into lighter fractions by heat/catalyst",options:["Breaking heavy hydrocarbons into lighter fractions by heat/catalyst","Distilling crude oil","Removing sulfur","Adding additives"],explain:"Cracking converts heavy fuel oil to petrol. Thermal cracking uses heat; catalytic cracking uses catalysts (zeolites).",hint:"Increases petrol yield"},
+      {q:"What is cetane number used for?",answer:"Measuring ignition quality of diesel fuel",options:["Measuring ignition quality of diesel fuel","Antiknocking of petrol","Calorific value","Viscosity of oil"],explain:"Cetane number: higher = better ignition quality. Cetane (n-hexadecane) = 100. Opposite concept to octane.",hint:"Diesel equivalent of octane"},
+      {q:"Knocking in petrol engines is caused by?",answer:"Premature ignition of fuel-air mixture",options:["Premature ignition of fuel-air mixture","Too much fuel","Water in fuel","Low octane number only"],explain:"Knocking occurs when fuel ignites before the spark plug fires, causing pressure waves and engine damage.",hint:"Uncontrolled combustion"},
+      {q:"Coal gas is produced from coal and contains mainly?",answer:"H₂, CH₄, and CO",options:["H₂, CH₄, and CO","CO and N₂","CO₂ and H₂O","O₂ and N₂"],explain:"Coal gas (town gas): H₂ ~50%, CH₄ ~35%, CO ~8%. High calorific value (~20 MJ/m³).",hint:"From coal carbonisation"},
+      {q:"What is the purpose of adding tetraethyl lead (TEL) to petrol?",answer:"To increase octane number and reduce knocking",options:["To increase octane number and reduce knocking","To increase calorific value","To reduce viscosity","To prevent corrosion"],explain:"TEL was an antiknock additive. Now replaced by MTBE or ethanol due to lead pollution concerns.",hint:"Antiknock additive"},
+      {q:"Which fraction of crude oil has the lowest boiling point?",answer:"Petroleum ether / LPG gases",options:["Petroleum ether / LPG gases","Diesel","Lubricating oil","Bitumen"],explain:"Fractional distillation: gases (LPG) at top (lowest BP), bitumen at bottom (highest BP).",hint:"Lightest fraction"},
+    ],
+    hard:[
+      {q:"The Dulong formula for calculating GCV of coal is?",answer:"GCV = 1/8(C) + H – O/8) × 33900 kJ/kg",options:["GCV = 1/8(C) + H – O/8) × 33900 kJ/kg","GCV = C + H + S","GCV = H × 144000","GCV = 33800C + 144000(H – O/8) + 9400S J/kg"],explain:"Dulong: GCV = [33800C + 144000(H – O/8) + 9400S] J/kg. Accounts for C, H available, and S.",hint:"Dulong's empirical formula"},
+      {q:"In a bomb calorimeter, which value is directly measured?",answer:"HCV (Higher/Gross Calorific Value)",options:["HCV (Higher/Gross Calorific Value)","LCV","Net calorific value","Flame temperature"],explain:"Bomb calorimeter measures heat at constant volume, water condenses → HCV is obtained directly.",hint:"Constant volume calorimeter"},
+      {q:"The theoretical air required for combustion of a fuel depends on?",answer:"Elemental composition (C, H, S, O content) of fuel",options:["Elemental composition (C, H, S, O content) of fuel","Colour of flame","Ignition temperature only","Density of fuel"],explain:"Stoichiometric air = calculated from C→CO₂, H→H₂O, S→SO₂ reactions. O in fuel reduces air needed.",hint:"Stoichiometric calculation"},
+      {q:"What is the significance of the flue gas analysis using Orsat apparatus?",answer:"Determines % of CO₂, CO, and O₂ to find combustion efficiency",options:["Determines % of CO₂, CO, and O₂ to find combustion efficiency","Measures calorific value","Analyses liquid fuel","Measures flame temperature"],explain:"Orsat apparatus absorbs CO₂ (KOH), O₂ (pyrogallol), CO (CuCl solution) to analyse flue gas composition.",hint:"Volumetric gas analysis"},
+    ]
+  },
+
+  corrosion:{
+    label:"🦠 Corrosion & Control",
+    easy:[
+      {q:"What is corrosion?",answer:"Deterioration of metals due to chemical/electrochemical reaction with environment",options:["Deterioration of metals due to chemical/electrochemical reaction with environment","Melting of metals","Mechanical wear","Polishing of metals"],explain:"Corrosion is the degradation of metals by reaction with oxygen, water, acids or other substances.",hint:"Natural destruction of metals"},
+      {q:"Rusting of iron is a type of?",answer:"Electrochemical (wet) corrosion",options:["Electrochemical (wet) corrosion","Dry oxidation only","Galvanic corrosion only","Chemical corrosion only"],explain:"Rusting involves anodic dissolution of iron and cathodic reduction of oxygen in presence of water.",hint:"Requires water and oxygen"},
+      {q:"What is galvanic corrosion?",answer:"Corrosion when two dissimilar metals contact in electrolyte",options:["Corrosion when two dissimilar metals contact in electrolyte","Corrosion by acid only","Uniform corrosion","Pitting corrosion"],explain:"In galvanic couples, the less noble (anodic) metal corrodes faster. Example: iron and copper in seawater.",hint:"Dissimilar metal contact"},
+      {q:"In corrosion, the anodic reaction is?",answer:"Oxidation (metal loses electrons): M → Mⁿ⁺ + ne⁻",options:["Oxidation (metal loses electrons): M → Mⁿ⁺ + ne⁻","Reduction","Neutralisation","Precipitation"],explain:"At anode: metal atoms oxidise and dissolve as ions. At cathode: oxygen/hydrogen is reduced.",hint:"Metal dissolves here"},
+      {q:"Which metal has highest corrosion resistance due to a passive oxide layer?",answer:"Aluminium",options:["Aluminium","Iron","Copper","Zinc"],explain:"Al₂O₃ layer on aluminium is dense, adherent, and self-healing — provides excellent corrosion protection.",hint:"Forms protective oxide"},
+      {q:"What is cathodic protection?",answer:"Making the metal a cathode to prevent corrosion",options:["Making the metal a cathode to prevent corrosion","Applying paint","Using stainless steel","Anodising"],explain:"Cathodic protection uses sacrificial anodes (Zn, Mg) or impressed current to protect structures like pipelines.",hint:"Used for pipelines and ships"},
+      {q:"Galvanising is coating iron with?",answer:"Zinc",options:["Zinc","Copper","Tin","Aluminium"],explain:"Zinc coating protects iron both as barrier and sacrificially (Zn is anodic to Fe).",hint:"Hot-dip process with Zn"},
+      {q:"Tinning is coating iron/steel with?",answer:"Tin",options:["Tin","Zinc","Nickel","Chromium"],explain:"Tin is used for food cans. Note: if tin coating breaks, iron corrodes FASTER (tin is cathodic to iron).",hint:"Used in food cans"},
+    ],
+    medium:[
+      {q:"What is passivation in corrosion?",answer:"Formation of a thin protective oxide film on metal surface",options:["Formation of a thin protective oxide film on metal surface","Complete corrosion","Removing metal ions","Plating with gold"],explain:"Passivation: metals like Fe, Cr, Ni form dense oxide films in oxidising environments that block further attack.",hint:"Stainless steel behaviour"},
+      {q:"What type of corrosion occurs in crevices and narrow gaps?",answer:"Crevice corrosion",options:["Crevice corrosion","Pitting corrosion","Galvanic corrosion","Erosion corrosion"],explain:"Crevice corrosion: oxygen-depleted zones in gaps create local galvanic cells causing concentrated attack.",hint:"Found at joints and seals"},
+      {q:"Impressed current cathodic protection (ICCP) uses?",answer:"External DC power source to supply protective current",options:["External DC power source to supply protective current","Sacrificial anode only","Organic coating","Anodising"],explain:"ICCP applies negative voltage to structure from external power — used for large structures like buried pipelines.",hint:"Active current source"},
+      {q:"What is stress corrosion cracking (SCC)?",answer:"Cracking due to combined action of stress and corrosive environment",options:["Cracking due to combined action of stress and corrosive environment","Mechanical fatigue only","Uniform rusting","Galvanic attack"],explain:"SCC requires: susceptible alloy + tensile stress + specific environment (e.g. brass in ammonia, steel in NaOH).",hint:"Needs stress + corrosive environment"},
+      {q:"The protection offered by sacrificial anode method uses which metal?",answer:"Zinc or Magnesium (more active metals)",options:["Zinc or Magnesium (more active metals)","Gold or Platinum","Copper","Iron"],explain:"Zn or Mg (higher in EMF series) acts as anode, corrodes sacrificially, protecting the cathodic iron/steel structure.",hint:"Higher activity metal sacrifices itself"},
+      {q:"Anodising is a process used to protect?",answer:"Aluminium (thickens Al₂O₃ layer electrolytically)",options:["Aluminium (thickens Al₂O₃ layer electrolytically)","Steel","Copper","Zinc"],explain:"Anodising: aluminium is made anode in H₂SO₄; electrolysis thickens the oxide layer to 5–25 μm.",hint:"Electrochemical oxidation"},
+    ],
+    hard:[
+      {q:"The EMF of a galvanic cell determines?",answer:"Tendency and direction of corrosion (noble vs active metal)",options:["Tendency and direction of corrosion (noble vs active metal)","Rate of plating","Calorific value","Oxide thickness"],explain:"E_cell = E_cathode – E_anode. Positive EMF → spontaneous corrosion of the anodic metal.",hint:"Standard electrode potentials"},
+      {q:"In differential aeration corrosion, which area corrodes?",answer:"Oxygen-deficient (lower O₂) area — acts as anode",options:["Oxygen-deficient (lower O₂) area — acts as anode","High O₂ area","Neutral pH area","Dry area"],explain:"Areas with less O₂ have lower electrode potential → act as anodes → corrode. High O₂ areas are cathodic.",hint:"O₂ concentration cell"},
+      {q:"What is the pilling-bedworth ratio (PBR) used for?",answer:"Predicting protectiveness of oxide layer formed during dry corrosion",options:["Predicting protectiveness of oxide layer formed during dry corrosion","Measuring corrosion rate","Cathodic protection efficiency","Galvanic series position"],explain:"PBR = volume of oxide / volume of metal consumed. PBR 1–2: protective; <1: non-protective (porous); >2: cracks.",hint:"Oxide film integrity criterion"},
+      {q:"Which factor does NOT increase corrosion rate?",answer:"Increasing metal purity",options:["Increasing metal purity","Increasing temperature","Presence of electrolyte","High humidity"],explain:"Pure metals corrode more uniformly but less due to fewer micro-galvanic cells. Impurities accelerate corrosion.",hint:"Galvanic cell formation"},
+    ]
+  },
+
+  polymers:{
+    label:"🧵 Chemistry of Polymers",
+    easy:[
+      {q:"What is a polymer?",answer:"Large molecule made of repeating structural units (monomers)",options:["Large molecule made of repeating structural units (monomers)","Small organic molecule","Metal alloy","Inorganic crystal"],explain:"Polymers (Greek: poly = many, meros = parts) are macromolecules formed by linking monomers through covalent bonds.",hint:"Poly = many, meros = part"},
+      {q:"What type of polymerisation forms nylon-6,6?",answer:"Condensation polymerisation",options:["Condensation polymerisation","Addition polymerisation","Ring-opening polymerisation","Radical polymerisation"],explain:"Nylon-6,6: hexamethylenediamine + adipic acid → polyamide + H₂O (condensation). Step-growth polymer.",hint:"Small molecule is eliminated"},
+      {q:"PVC (polyvinyl chloride) is made from which monomer?",answer:"Vinyl chloride (CH₂=CHCl)",options:["Vinyl chloride (CH₂=CHCl)","Styrene","Ethylene","Propylene"],explain:"PVC polymerisation: n(CH₂=CHCl) → [–CH₂–CHCl–]ₙ. Addition polymerisation of vinyl chloride.",hint:"Chlorinated ethylene"},
+      {q:"What is the glass transition temperature (Tg)?",answer:"Temperature at which polymer changes from glassy to rubbery state",options:["Temperature at which polymer changes from glassy to rubbery state","Melting point","Boiling point","Decomposition temperature"],explain:"Below Tg: polymer is rigid/glassy. Above Tg: rubbery/flexible. Important for polymer processing.",hint:"Rigidity to flexibility"},
+      {q:"Which polymer is used in making non-stick cookware?",answer:"PTFE (Teflon) – polytetrafluoroethylene",options:["PTFE (Teflon) – polytetrafluoroethylene","Nylon","Polystyrene","PVC"],explain:"PTFE has very low surface energy and friction coefficient. Chemically inert due to strong C–F bonds.",hint:"Very low friction polymer"},
+      {q:"Bakelite is an example of?",answer:"Thermosetting polymer",options:["Thermosetting polymer","Thermoplastic","Elastomer","Biopolymer"],explain:"Bakelite (phenol-formaldehyde resin) forms irreversible cross-linked network — cannot be remelted.",hint:"Cannot be remoulded"},
+      {q:"Natural rubber is a polymer of?",answer:"Isoprene (2-methylbuta-1,3-diene)",options:["Isoprene (2-methylbuta-1,3-diene)","Styrene","Butadiene","Chloroprene"],explain:"Natural rubber: cis-polyisoprene, [–CH₂–C(CH₃)=CH–CH₂–]ₙ. Vulcanisation improves its properties.",hint:"From Hevea brasiliensis tree"},
+      {q:"What is vulcanisation of rubber?",answer:"Cross-linking rubber chains with sulphur at 140–160°C",options:["Cross-linking rubber chains with sulphur at 140–160°C","Dissolving rubber in solvent","Adding plasticisers","Bleaching rubber"],explain:"Goodyear's process: S–S cross-links between isoprene chains improve strength, elasticity, and resistance.",hint:"Discovered by Goodyear"},
+    ],
+    medium:[
+      {q:"What is the difference between thermoplastics and thermosets?",answer:"Thermoplastics soften on heating; thermosets permanently harden",options:["Thermoplastics soften on heating; thermosets permanently harden","Both are same","Thermosets are natural only","Thermoplastics cannot be recycled"],explain:"Thermoplastics: linear/branched chains, reversible. Thermosets: cross-linked network, irreversible. Key for recycling.",hint:"Recycling distinction"},
+      {q:"SBR (Styrene Butadiene Rubber) is a?",answer:"Synthetic rubber / co-polymer",options:["Synthetic rubber / co-polymer","Natural polymer","Thermosetting plastic","Conducting polymer"],explain:"SBR: co-polymerisation of styrene and butadiene. Used in car tyres — better abrasion resistance than natural rubber.",hint:"Used in car tyres"},
+      {q:"What is the degree of polymerisation (DP)?",answer:"Number of repeat units in a polymer chain",options:["Number of repeat units in a polymer chain","Molecular weight of monomer","Temperature of polymerisation","Density of polymer"],explain:"DP = molecular weight of polymer / molecular weight of repeat unit. Higher DP = higher MW = stronger material.",hint:"Chain length indicator"},
+      {q:"Which type of polymerisation involves free radicals?",answer:"Addition (free radical) polymerisation",options:["Addition (free radical) polymerisation","Condensation polymerisation","Ionic polymerisation","Coordination polymerisation"],explain:"Free radical addition: initiation → propagation → termination. Used for PVC, polystyrene, PTFE.",hint:"Initiation, propagation, termination"},
+      {q:"What makes Nylon-6 different from Nylon-6,6?",answer:"Nylon-6 from caprolactam (ring-opening); Nylon-6,6 from diamine + diacid",options:["Nylon-6 from caprolactam (ring-opening); Nylon-6,6 from diamine + diacid","They are identical","Nylon-6 has 6 carbon atoms total","Nylon-6,6 is harder only"],explain:"Nylon-6: caprolactam (single monomer, ring-opens). Nylon-6,6: hexamethylene diamine + adipic acid (two monomers).",hint:"One monomer vs two monomers"},
+      {q:"Conducting polymers are characterised by?",answer:"Conjugated π-electron system enabling electrical conductivity",options:["Conjugated π-electron system enabling electrical conductivity","No double bonds","High crystallinity","Ionic bonding only"],explain:"Polyacetylene, polyaniline, polypyrrole: alternating single-double bonds allow electron delocalisation and conductivity.",hint:"Doped conjugated system"},
+    ],
+    hard:[
+      {q:"What is tacticity in polymers?",answer:"Spatial arrangement of substituents along polymer backbone",options:["Spatial arrangement of substituents along polymer backbone","Chain length","Cross-link density","Crystallinity percentage"],explain:"Isotactic: all substituents same side. Syndiotactic: alternating. Atactic: random. Affects crystallinity and Tm.",hint:"Isotactic, syndiotactic, atactic"},
+      {q:"The Ziegler-Natta catalyst is used to produce?",answer:"Stereoregular (isotactic) polyolefins like polypropylene",options:["Stereoregular (isotactic) polyolefins like polypropylene","Nylon","Epoxy resins","Natural rubber"],explain:"Ziegler-Natta (TiCl₄/AlEt₃): Nobel 1963. Produces isotactic PP with controlled stereochemistry.",hint:"Stereospecific polymerisation"},
+      {q:"What is biodegradable polymer? Give an example.",answer:"Polymer degradable by microorganisms — e.g. PLA (polylactic acid)",options:["Polymer degradable by microorganisms — e.g. PLA (polylactic acid)","PVC","Bakelite","PTFE"],explain:"PLA from lactic acid: used in biomedical implants, packaging. Degrades by hydrolysis of ester bonds.",hint:"From renewable resources"},
+      {q:"KEVLAR is a polyaramid with exceptional strength due to?",answer:"Hydrogen bonding and aromatic rings giving rigid rod structure",options:["Hydrogen bonding and aromatic rings giving rigid rod structure","Cross-linking by sulphur","Free radical initiation","Ionic bonds"],explain:"KEVLAR: poly-para-phenylene terephthalamide. H-bonds between chains + aromatic rigidity → 5× stronger than steel by weight.",hint:"Used in bullet-proof vests"},
+    ]
+  },
+
+  carbon:{
+    label:"💎 Noble Carbon Compounds",
+    easy:[
+      {q:"What are allotropes of carbon?",answer:"Diamond, Graphite, Fullerene, Graphene",options:["Diamond, Graphite, Fullerene, Graphene","Carbon dioxide, methane","Charcoal only","Coke and coal"],explain:"Carbon has multiple allotropes differing in bonding and structure, with vastly different properties.",hint:"Same element, different structures"},
+      {q:"In diamond, each carbon is bonded to how many other carbons?",answer:"4 (tetrahedral sp³ hybridisation)",options:["4 (tetrahedral sp³ hybridisation)","3","2","6"],explain:"Diamond: 3D covalent network with sp³ carbon. All 4 valence electrons in σ bonds → hardest natural material.",hint:"sp³ = 4 bonds"},
+      {q:"Why is graphite a good conductor of electricity?",answer:"Delocalised π electrons in each layer are free to move",options:["Delocalised π electrons in each layer are free to move","It has metallic bonds","It contains free ions","It is a metal"],explain:"Graphite: sp² carbon in hexagonal layers. One unhybridised p electron per carbon forms delocalised π system.",hint:"Free electrons in layers"},
+      {q:"What is Buckminster Fullerene (C₆₀)?",answer:"Spherical molecule of 60 carbons in pentagons and hexagons",options:["Spherical molecule of 60 carbons in pentagons and hexagons","A form of graphite","A diamond crystal","A polymer of carbon"],explain:"C₆₀ (Buckyballs): 12 pentagons + 20 hexagons, resembling a football. Discovered by Kroto, Curl, Smalley (Nobel 1996).",hint:"Like a football/soccer ball"},
+      {q:"Carbon nanotubes (CNTs) are basically?",answer:"Rolled-up sheets of graphene",options:["Rolled-up sheets of graphene","Hollow diamond crystals","C₆₀ molecules","Carbon fibres"],explain:"CNTs: single-walled (SWCNT) or multi-walled (MWCNT) graphene cylinders. Exceptional strength and conductivity.",hint:"Graphene cylinders"},
+      {q:"Graphene is a?",answer:"Single layer of carbon atoms in hexagonal lattice",options:["Single layer of carbon atoms in hexagonal lattice","3D diamond structure","Amorphous carbon","Multiple graphite layers"],explain:"Graphene: one-atom-thick sp² carbon sheet. Strongest material known, excellent electrical and thermal conductor.",hint:"2D material"},
+      {q:"Which property makes diamond the hardest natural material?",answer:"Rigid 3D covalent network with sp³ bonds",options:["Rigid 3D covalent network with sp³ bonds","Metallic bonding","Ionic crystal structure","Hydrogen bonding"],explain:"Every C–C bond in diamond is strong σ bond in tetrahedral arrangement → no slip planes → maximum hardness.",hint:"No planes to slip"},
+      {q:"Carbon nanotubes have tensile strength approximately?",answer:"100× stronger than steel at 1/6 the weight",options:["100× stronger than steel at 1/6 the weight","Same as iron","Weaker than rubber","Same as aluminium"],explain:"CNTs: Young's modulus ~1 TPa, tensile strength ~100 GPa. Potential for ultra-strong lightweight composites.",hint:"Exceptional strength-to-weight"},
+    ],
+    medium:[
+      {q:"What is the hybridisation of carbon in graphene?",answer:"sp² with one unhybridised p orbital",options:["sp² with one unhybridised p orbital","sp³","sp","sp³d"],explain:"sp² gives planar 120° bonds; unhybridised pz orbital forms π bonds across the sheet → delocalised electrons.",hint:"Three sigma bonds + pi system"},
+      {q:"What makes fullerenes potential candidates for drug delivery?",answer:"Hollow cage can encapsulate drug molecules",options:["Hollow cage can encapsulate drug molecules","They are toxic","They react with all drugs","They are magnetic"],explain:"Endohedral fullerenes can host atoms/molecules inside the cage. C₆₀ derivatives are studied as anticancer carriers.",hint:"Hollow structure = container"},
+      {q:"SWCNT vs MWCNT — what is the key structural difference?",answer:"SWCNT has one graphene cylinder; MWCNT has nested multiple cylinders",options:["SWCNT has one graphene cylinder; MWCNT has nested multiple cylinders","MWCNT is shorter","SWCNT is cheaper","They are the same"],explain:"SWCNT (1–2 nm dia): cleaner electrical properties. MWCNT: stronger mechanically. Both made by arc discharge/CVD.",hint:"Single vs multiple walls"},
+      {q:"The band gap of semiconducting CNTs depends on?",answer:"Chirality (rolling angle) of the graphene sheet",options:["Chirality (rolling angle) of the graphene sheet","Length only","Temperature only","Diameter only"],explain:"Chirality vector (n,m) determines whether CNT is metallic (n–m divisible by 3) or semiconducting.",hint:"Chiral indices (n,m)"},
+      {q:"Graphene oxide (GO) differs from graphene because?",answer:"GO has oxygen functional groups (–OH, –COOH, epoxy) on surface",options:["GO has oxygen functional groups (–OH, –COOH, epoxy) on surface","GO is harder","GO has no carbon","GO is a metal"],explain:"GO made by Hummers method — oxidation adds –OH, –COOH, epoxide groups, disrupting π system and making it insulating.",hint:"Oxidised graphene"},
+      {q:"Carbon nanotubes are used in composites to improve?",answer:"Tensile strength, electrical conductivity, and thermal properties",options:["Tensile strength, electrical conductivity, and thermal properties","Color only","Transparency","Magnetic properties"],explain:"CNT composites in aerospace, sports equipment (tennis rackets), electronics — significant property enhancements at low loading.",hint:"Multiple property enhancement"},
+    ],
+    hard:[
+      {q:"What is the armchair, zigzag classification in CNTs?",answer:"Types of chirality based on how graphene sheet is rolled",options:["Types of chirality based on how graphene sheet is rolled","Types of MWCNT only","Based on length","Based on synthesis method"],explain:"Armchair (n,n): metallic. Zigzag (n,0): can be metallic or semiconducting. Chiral (n,m): mixed properties.",hint:"Determines electrical properties"},
+      {q:"What is the quantum Hall effect observed in graphene?",answer:"Half-integer quantum Hall effect due to linear Dirac cone dispersion",options:["Half-integer quantum Hall effect due to linear Dirac cone dispersion","Normal Hall effect","No Hall effect","Magnetic ordering"],explain:"Graphene charge carriers behave as massless Dirac fermions; anomalous QHE at room temperature (Geim & Novoselov, Nobel 2010).",hint:"Massless Dirac fermions"},
+      {q:"Endohedral metallofullerenes (EMFs) are used in?",answer:"MRI contrast agents and quantum computing qubits",options:["MRI contrast agents and quantum computing qubits","Fuel cells only","Rubber manufacture","Water purification only"],explain:"Metal@C₆₀ (e.g. Gd@C₆₀) for MRI contrast; N@C₆₀ spin qubit for quantum computing — active research areas.",hint:"Metal inside fullerene cage"},
+      {q:"The Hummers method is used to synthesise?",answer:"Graphene oxide from graphite using KMnO₄ and H₂SO₄",options:["Graphene oxide from graphite using KMnO₄ and H₂SO₄","Carbon nanotubes","Diamond films","Fullerene C₆₀"],explain:"Hummers (1958): graphite + KMnO₄ + H₂SO₄ → graphene oxide. Reduced GO (rGO) restores conductivity partially.",hint:"Strong oxidising conditions on graphite"},
+    ]
+  }
+};
+
+let enggTopic='water', enggDiff='easy', enggIdx=0, enggScore=0, enggQ=[], enggCurrent=null;
+
+const ENGG_TOPIC_LABELS = {
+  water:'💧 Water Technology', fuels:'🔥 Fuels & Combustion',
+  corrosion:'🦠 Corrosion', polymers:'🧵 Polymers', carbon:'💎 Noble Carbon'
+};
+
+function setEnggTopic(t, btn){
+  enggTopic=t;
+  document.querySelectorAll('#engg-topic-btns .diff-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  startEnggGame();
+}
+function setEnggDiff(d, btn){
+  enggDiff=d;
+  document.querySelectorAll('#engg-diff .diff-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  startEnggGame();
+}
+function startEnggGame(){
+  enggIdx=0; enggScore=0;
+  const pool=ENGG_QS[enggTopic][enggDiff];
+  enggQ=shuffle([...pool]).slice(0,Math.min(10,pool.length));
+  document.getElementById('engg-game').style.display='';
+  document.getElementById('engg-results').style.display='none';
+  renderEnggQ();
+}
+function renderEnggQ(){
+  enggCurrent=enggQ[enggIdx];
+  setText('engg-qcount',`Question ${enggIdx+1} of ${enggQ.length}`);
+  setText('engg-topic-badge', ENGG_TOPIC_LABELS[enggTopic]);
+  document.getElementById('engg-progress').style.width=`${(enggIdx/enggQ.length)*100}%`;
+  document.getElementById('engg-question').textContent=enggCurrent.q;
+  document.getElementById('engg-hint').textContent='💡 '+enggCurrent.hint;
+  document.getElementById('engg-feedback').className='feedback-box';
+  document.getElementById('engg-next').style.display='none';
+  document.getElementById('engg-ask-ai').style.display='none';
+  document.getElementById('engg-options').innerHTML=
+    shuffle([...enggCurrent.options]).map(o=>`<button class="option-btn" onclick="checkEngg('${escA(o)}')">${escH(o)}</button>`).join('');
+}
+function checkEngg(chosen){
+  const q=enggCurrent, correct=chosen===q.answer;
+  document.querySelectorAll('#engg-options .option-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===q.answer) b.classList.add('correct');
+    else if(b.textContent===chosen&&!correct) b.classList.add('wrong');
+  });
+  const xp=enggDiff==='easy'?10:enggDiff==='medium'?20:35;
+  const fb=document.getElementById('engg-feedback');
+  const topicKey=ENGG_TOPIC_LABELS[enggTopic];
+  if(correct){
+    fb.className='feedback-box correct-fb show';
+    fb.innerHTML=`✅ <strong>Correct! +${xp} XP</strong><br>${q.explain}`;
+    addXP(xp,event); enggScore+=xp;
+  } else {
+    fb.className='feedback-box wrong-fb show';
+    fb.innerHTML=`❌ Answer: <strong>${escH(q.answer)}</strong><br>${q.explain}`;
+    breakStreak();
+  }
+  recordQ(topicKey, correct);
+  document.getElementById('engg-next').style.display='inline-flex';
+  document.getElementById('engg-ask-ai').style.display='inline-flex';
+}
+function nextEnggQuestion(){ enggIdx++; if(enggIdx>=enggQ.length) return showEnggResults(); renderEnggQ(); }
+function showEnggResults(){
+  document.getElementById('engg-game').style.display='none';
+  const r=document.getElementById('engg-results'); r.style.display='block';
+  const mx=enggQ.length*(enggDiff==='easy'?10:enggDiff==='medium'?20:35);
+  const pct=Math.round(enggScore/mx*100);
+  r.innerHTML=`
+    <div style="font-size:2.5rem">${{water:'💧',fuels:'🔥',corrosion:'🦠',polymers:'🧵',carbon:'💎'}[enggTopic]}</div>
+    <h2 style="margin:8px 0">${ENGG_TOPIC_LABELS[enggTopic]} Complete!</h2>
+    <div class="big-score">${enggScore} XP</div>
+    <div class="grade">${pct}% — ${grade(pct)}</div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
+      <button class="btn btn-primary" onclick="startEnggGame()">Retry Topic</button>
+      <button class="btn btn-secondary" onclick="switchTab('analytics')">📊 View Analytics</button>
+    </div>`;
+}
+
+
+// ════════════════════════════════
+// INIT
+// ════════════════════════════════
+startFGGame();
+startRxnGame();
+initMemGame();
+startEqGame();
+startEnggGame();
+</script>
+</body>
+</html>
